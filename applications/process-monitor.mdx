@@ -1,0 +1,393 @@
+---
+title: 'Process Monitor'
+description: 'Live htop-style process viewer for monitoring system windows and applications in Time Capsule'
+icon: 'chart-line'
+---
+
+The Process Monitor is a live, interactive htop-style process viewer that displays active windows, applications, and system processes. Navigate with keyboard shortcuts, monitor resource usage, and manage running processes.
+
+<Note>
+  The Process Monitor is implemented in `processmonitor.ts` (305 lines) and provides a terminal-style interface for viewing active windows and simulated system processes.
+</Note>
+
+## Opening Process Monitor
+
+Access the Process Monitor through:
+
+<Tabs>
+  <Tab title="Application Manager">
+    1. Open **Application Manager** from the front panel
+    2. Click the **Process Monitor** icon (task manager icon)
+  </Tab>
+  
+  <Tab title="Keyboard Shortcut">
+    Launch via Application Manager (no dedicated global shortcut)
+  </Tab>
+</Tabs>
+
+## Interface Overview
+
+The Process Monitor displays a terminal-style interface with:
+
+<CardGroup cols={2}>
+  <Card title="System Header" icon="server">
+    Time, load average, uptime, and task counts
+  </Card>
+  
+  <Card title="Memory Bars" icon="memory">
+    Visual memory and swap usage with percentage indicators
+  </Card>
+  
+  <Card title="Process Table" icon="table">
+    PID, name, CPU%, MEM% columns for all processes
+  </Card>
+  
+  <Card title="Status Updates" icon="rotate">
+    Live updates every 1000ms with real-time data
+  </Card>
+</CardGroup>
+
+## Process Listing
+
+### Active Windows
+
+The Process Monitor scans for active windows and displays them as processes:
+
+- **Window Elements**: All `.window` and `.cde-retro-modal` elements
+- **PID Assignment**: Starting from 1000, incrementing for each window
+- **Name Detection**: From window ID or titlebar text
+- **Visibility**: Shows whether window is currently visible
+- **Resource Usage**: Simulated CPU (0.1-5.0%) and memory (2-12%) values
+
+**Scanning Logic**: `processmonitor.ts:19-46`
+```typescript
+function scanProcesses(): ProcessInfo[] {
+  const processes: ProcessInfo[] = [];
+  const activeWindows = document.querySelectorAll('.window, .cde-retro-modal');
+  let pidCount = 1000;
+
+  activeWindows.forEach((win) => {
+    const el = win as HTMLElement;
+    const isVisible = el.style.display !== 'none';
+    // Extract name from titlebar or ID
+    processes.push({
+      pid: pidCount++,
+      name,
+      cpu: (Math.random() * 5 + 0.1).toFixed(1),
+      mem: (Math.random() * 10 + 2).toFixed(1),
+      elementId: el.id,
+      visible: isVisible,
+      isModal: el.classList.contains('cde-retro-modal')
+    });
+  });
+  return processes;
+}
+```
+
+### System Processes
+
+The monitor also displays simulated system processes:
+
+- **init** (PID 1) - System init process, 0.3% CPU, 1.2% memory
+- **kthreadd** (PID 2) - Kernel thread daemon, 0.0% CPU
+- **ksoftirqd/0** (PID 3) - Kernel software interrupt daemon, 0.1% CPU
+
+<Info>
+  These system processes are simulated for authenticity. They represent typical Unix/Linux system processes that would appear in a real htop display.
+</Info>
+
+## Keyboard Navigation
+
+The Process Monitor supports full keyboard control:
+
+### Process Selection
+
+| Key | Action |
+|-----|--------|
+| `↑` | Move selection up one process |
+| `↓` | Move selection down one process |
+| `Home` | Jump to first process |
+| `End` | Jump to last process |
+
+### Process Actions
+
+| Key | Action |
+|-----|--------|
+| `k` or `K` | Kill selected process (close window) |
+| `q` or `Q` | Quit Process Monitor |
+| `Escape` | Close Process Monitor |
+
+**Keyboard Handler**: `processmonitor.ts:114-143`
+```typescript
+function handleKeyDown(e: KeyboardEvent): void {
+  switch (e.key) {
+    case 'ArrowUp':
+      if (selectedIndex > 0) {
+        selectedIndex--;
+        updateSelectedRow();
+      }
+      break;
+    case 'ArrowDown':
+      if (selectedIndex < processes.length - 1) {
+        selectedIndex++;
+        updateSelectedRow();
+      }
+      break;
+    case 'k':
+    case 'K':
+      killSelected();
+      break;
+    case 'q':
+    case 'Q':
+    case 'Escape':
+      close();
+      break;
+  }
+}
+```
+
+<Warning>
+  Killing a process (pressing `k`) will close the corresponding window. This action cannot be undone — the window will need to be reopened manually.
+</Warning>
+
+## System Information Display
+
+### Header Information
+
+**Time & Load**:
+```
+Time Capsule 1.0.31    10:25:00    up 0:15,  1 user,  load average: 0.42, 0.38, 0.31
+```
+
+- **Version**: Time Capsule version from package.json
+- **Current Time**: HH:MM:SS format
+- **Uptime**: Time since page load (minutes:seconds)
+- **Load Average**: Simulated 1, 5, and 15-minute load averages
+
+**Task Counts**:
+```
+Tasks: 8 total,   1 running,   7 sleeping
+```
+
+- **Total**: Number of active processes
+- **Running**: Visible windows (display !== 'none')
+- **Sleeping**: Hidden/minimized windows
+
+### Memory Display
+
+**Memory Bar**:
+```
+Mem [||||||||||||||||||||                    ] 4096/8192 MB (50.0%)
+```
+
+- **Visual Bar**: 40-character bar with filled/empty indicators
+- **Used/Total**: Simulated memory values (4096MB used, 8192MB total)
+- **Percentage**: Calculated usage percentage
+
+**Swap Bar**:
+```
+Swap[|||||                                   ] 512/2048 MB (25.0%)
+```
+
+- **Visual Bar**: Similar to memory bar
+- **Used/Total**: Simulated swap values (512MB used, 2048MB total)
+- **Percentage**: Calculated swap usage
+
+<Tip>
+  The memory and swap values are simulated for demonstration purposes. They represent typical system resource usage but don't reflect actual browser memory consumption.
+</Tip>
+
+## Process Table
+
+The process table displays columns:
+
+| Column | Description |
+|--------|-------------|
+| **PID** | Process ID (1000+ for windows, 1-3 for system) |
+| **NAME** | Window name or process name |
+| **CPU%** | Simulated CPU usage (0.0-5.0%) |
+| **MEM%** | Simulated memory usage (0.0-12.0%) |
+
+**Selected Row**:
+- Highlighted in white/cyan color scheme
+- Displays process details with ANSI-style color codes
+- Updates in real-time as you navigate
+
+**Row Rendering**: `processmonitor.ts:145-162`
+```typescript
+function updateSelectedRow(): void {
+  rowElements.forEach((row, idx) => {
+    const isSelected = idx === selectedIndex;
+    isSelected ? row.classList.add('selected') : row.classList.remove('selected');
+    updateRowText(row, processes[idx], isSelected);
+  });
+}
+```
+
+## Live Updates
+
+The Process Monitor automatically refreshes every 1 second:
+
+1. **Scan Processes**: Re-scans all window elements
+2. **Update Counts**: Recalculates task counts (running/sleeping)
+3. **Refresh Display**: Re-renders header, memory bars, and process table
+4. **Maintain Selection**: Preserves selected process index across updates
+
+**Update Cycle**: `processmonitor.ts:241-250`
+```typescript
+function startUpdates(): void {
+  updateInterval = window.setInterval(() => {
+    const newProcesses = scanProcesses();
+    const newJSON = JSON.stringify(newProcesses);
+    if (newJSON !== lastProcessesJSON) {
+      processes = newProcesses;
+      lastProcessesJSON = newJSON;
+      renderContent();
+    }
+  }, 1000);
+}
+```
+
+<Info>
+  Updates only trigger a full re-render if the process list has changed. This optimization prevents unnecessary DOM updates and improves performance.
+</Info>
+
+## Killing Processes
+
+To close a window via the Process Monitor:
+
+<Steps>
+  <Step title="Select the process">
+    Use `↑`/`↓` arrow keys to navigate to the window you want to close.
+  </Step>
+  
+  <Step title="Press k to kill">
+    Press `k` or `K` to kill the selected process.
+  </Step>
+  
+  <Step title="Confirm closure">
+    The window will close immediately and be removed from the process list on the next update.
+  </Step>
+</Steps>
+
+**Kill Function**: `processmonitor.ts:173-190`
+```typescript
+function killSelected(): void {
+  if (selectedIndex < 0 || selectedIndex >= processes.length) return;
+  const proc = processes[selectedIndex];
+  if (!proc.elementId) return;
+
+  const win = document.getElementById(proc.elementId);
+  if (win) {
+    const closeBtn = win.querySelector('.window-close') as HTMLElement;
+    if (closeBtn) {
+      closeBtn.click(); // Trigger close
+    }
+  }
+}
+```
+
+## Technical Implementation
+
+### ProcessInfo Interface
+
+**Defined in**: `processmonitor.ts:9-17`
+```typescript
+interface ProcessInfo {
+  pid: number;
+  name: string;
+  cpu: string;
+  mem: string;
+  elementId: string | null;
+  visible: boolean;
+  isModal: boolean;
+}
+```
+
+### Process Monitor Singleton
+
+The `ProcessMonitor` is implemented as a singleton module pattern:
+
+<CardGroup cols={2}>
+  <Card title="open()" icon="folder-open">
+    Opens the monitor, starts updates, and focuses the window
+  </Card>
+  
+  <Card title="close()" icon="xmark">
+    Closes the monitor and stops the update interval
+  </Card>
+  
+  <Card title="scanProcesses()" icon="magnifying-glass">
+    Scans DOM for active windows and returns ProcessInfo array
+  </Card>
+  
+  <Card title="renderContent()" icon="paintbrush">
+    Renders the full terminal-style display with colors
+  </Card>
+  
+  <Card title="startUpdates()" icon="play">
+    Begins 1-second update interval
+  </Card>
+  
+  <Card title="stopUpdates()" icon="stop">
+    Clears the update interval
+  </Card>
+</CardGroup>
+
+### ANSI Color Codes
+
+The Process Monitor uses ANSI-style color codes for terminal aesthetics:
+
+- `\x1b[36m` - Cyan (column headers)
+- `\x1b[33m` - Yellow (PIDs)
+- `\x1b[37m` - White (selected row)
+- `\x1b[32m` - Green (process names)
+- `\x1b[0m` - Reset (default color)
+
+**Color Application**: `processmonitor.ts:164-172`
+```typescript
+function updateRowText(row: HTMLElement, proc: ProcessInfo, selected: boolean): void {
+  const color = selected ? '\x1b[37m' : '\x1b[32m';
+  row.textContent = `${color}${proc.pid.toString().padStart(7)}  ${proc.name.padEnd(24)} ${proc.cpu.padStart(6)}  ${proc.mem.padStart(6)}\x1b[0m`;
+}
+```
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Monitor Active Windows">
+    Keep the Process Monitor open to see which windows are currently active, their visibility status, and simulated resource usage. This helps track what applications are running.
+  </Accordion>
+  
+  <Accordion title="Close Unresponsive Windows">
+    If a window becomes unresponsive or difficult to close normally, use the Process Monitor to kill it with the keyboard shortcut `k`. This provides an alternative to clicking the close button.
+  </Accordion>
+  
+  <Accordion title="System Monitoring Experience">
+    Use the Process Monitor to experience an authentic Unix/Linux system monitoring tool similar to `htop` or `top`. It recreates the terminal-style interface and keyboard navigation.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  The Process Monitor is most useful when you have multiple windows open across different workspaces. It provides a centralized view of all active windows regardless of workspace.
+</Tip>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Application Manager" icon="grid" href="/applications/app-manager">
+    Launch Process Monitor from the Application Manager
+  </Card>
+  
+  <Card title="Terminal Lab" icon="terminal" href="/applications/terminal-lab">
+    Learn process management commands like `ps`, `top`, and `kill`
+  </Card>
+  
+  <Card title="Window Manager" icon="window" href="/technical/window-manager">
+    Technical details on window lifecycle and management
+  </Card>
+  
+  <Card title="Keyboard Shortcuts" icon="keyboard" href="/user-guide/keyboard-shortcuts">
+    All keyboard shortcuts including window management
+  </Card>
+</CardGroup>

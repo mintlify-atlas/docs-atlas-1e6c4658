@@ -1,0 +1,371 @@
+---
+title: 'Application Manager'
+description: 'Centralized application launcher with grid view of all available applications in Time Capsule'
+icon: 'grid-2'
+---
+
+The Application Manager provides a centralized grid view of all available applications in Time Capsule. Launch any application from a single window with visual icons and organized layout.
+
+<Note>
+  The Application Manager is implemented in `appmanager.ts` (52 lines) and provides a modal-style launcher following CDE's application folder paradigm.
+</Note>
+
+## Opening Application Manager
+
+Access the Application Manager through:
+
+<Tabs>
+  <Tab title="Front Panel">
+    Click the **App Manager** button in the front panel (typically in the utilities or applications section).
+  </Tab>
+  
+  <Tab title="Menu Button">
+    Click the CDE menu button (`.cde-menu-btn`) if available in your panel configuration.
+  </Tab>
+</Tabs>
+
+<Info>
+  The Application Manager opens as a modal-style window that centers on the screen and displays above other windows with a high z-index (10000).
+</Info>
+
+## Interface Layout
+
+The Application Manager displays a grid of application icons:
+
+<CardGroup cols={2}>
+  <Card title="Grid Layout" icon="table-cells">
+    14 application icons in a responsive grid layout
+  </Card>
+  
+  <Card title="Icon + Label" icon="image">
+    Each app shows an icon image and text label
+  </Card>
+  
+  <Card title="Titlebar Path" icon="folder-tree">
+    Shows CDE path: `/usr/dt/appconfig/appmanager`
+  </Card>
+  
+  <Card title="Status Bar" icon="info">
+    Displays "14 Objects" count
+  </Card>
+</CardGroup>
+
+## Available Applications
+
+The Application Manager provides quick access to all Time Capsule applications:
+
+### Core Applications
+
+<AccordionGroup>
+  <Accordion title="Terminal Lab" icon="terminal">
+    **Icon**: `computer.png`
+    
+    Opens the interactive Unix terminal with 22 lessons. Learn commands from basic navigation to advanced pipes and text processing.
+    
+    **Action**: Calls `TerminalLab.open()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="File Manager" icon="folder">
+    **Icon**: `filemanager.png`
+    
+    Opens the CDE-style file browser for navigating the virtual filesystem. Create, delete, rename, and organize files and folders.
+    
+    **Action**: Calls `toggleFileManager()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="Style Manager" icon="palette">
+    **Icon**: `org.xfce.settings.appearance.png`
+    
+    Opens the style customization interface. Choose from 76 color palettes, 168 backdrops, fonts, and other appearance settings.
+    
+    **Action**: Calls `styleManager.openMain()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="XEmacs" icon="code">
+    **Icon**: `xemacs.png` (pixelated style)
+    
+    Launches the XEmacs text editor with authentic Emacs keybindings, minibuffer, and GNU splash screen.
+    
+    **Action**: Calls `window.Emacs?.openSplash()` and closes Application Manager
+  </Accordion>
+</AccordionGroup>
+
+### Browsers & Documentation
+
+<AccordionGroup>
+  <Accordion title="Netscape Navigator" icon="globe">
+    **Icon**: `netscape_classic.png`
+    
+    Opens the 1990s web browser with authentic Netscape interface. Browse internal vintage pages or access modern websites via Web Archive.
+    
+    **Action**: Calls `window.Netscape?.open()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="Lynx Browser" icon="terminal">
+    **Icon**: `Lynx.svg`
+    
+    Launches the text-based web browser with keyboard-driven navigation and numbered links.
+    
+    **Action**: Calls `window.Lynx?.open()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="Man Pages" icon="book">
+    **Icon**: `man.png`
+    
+    Opens the Unix manual page viewer with 28 essential commands, clickable examples, and cross-referenced documentation.
+    
+    **Action**: Calls `window.ManViewer?.open()` and closes Application Manager
+  </Accordion>
+</AccordionGroup>
+
+### System Utilities
+
+<AccordionGroup>
+  <Accordion title="Audio Setup" icon="volume">
+    **Icon**: `multimedia-volume-control.png`
+    
+    Opens the Audio Manager for configuring system sounds and beep settings.
+    
+    **Action**: Calls `styleManager.openBeep()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="Process Monitor" icon="chart-line">
+    **Icon**: `org.xfce.taskmanager.png`
+    
+    Launches the htop-style process viewer showing active windows, resource usage, and allowing process management.
+    
+    **Action**: Calls `openTaskManagerInTerminal()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="Calendar" icon="calendar">
+    **Icon**: `calendar.png`
+    
+    Opens the interactive monthly calendar with date navigation and today highlighting.
+    
+    **Action**: Calls `openCalendar()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="Clock" icon="clock">
+    **Icon**: `gtkclocksetup.png`
+    
+    Opens the Clock/Time Manager for viewing time and date settings.
+    
+    **Action**: Calls `timeManager.open()` and closes Application Manager
+  </Accordion>
+</AccordionGroup>
+
+### Additional Tools
+
+<AccordionGroup>
+  <Accordion title="Screenshooter" icon="camera">
+    **Icon**: `org.xfce.screenshooter.png`
+    
+    Captures a full-page screenshot of your current Time Capsule desktop.
+    
+    **Action**: Calls `captureFullPageScreenshot()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="Share Theme" icon="share">
+    **Icon**: `org.xfce.PanelProfiles.png`
+    
+    Generates a shareable URL with your current theme settings (palette, backdrop, fonts) for posting to GitHub Discussions.
+    
+    **Action**: Calls `shareThemeToDiscussions()` and closes Application Manager
+  </Accordion>
+  
+  <Accordion title="Keyboard Shortcuts" icon="keyboard">
+    **Icon**: `preferences-desktop-keyboard-shortcuts.png`
+    
+    Displays a help dialog showing all available keyboard shortcuts organized by category.
+    
+    **Action**: Calls `AccessibilityManager.showShortcutsHelp()` and closes Application Manager
+  </Accordion>
+</AccordionGroup>
+
+## Usage
+
+### Launching Applications
+
+<Steps>
+  <Step title="Open Application Manager">
+    Click the App Manager icon in the front panel or press the designated menu button.
+  </Step>
+  
+  <Step title="Select application">
+    Click any application icon in the grid. Each icon is clearly labeled with the application name.
+  </Step>
+  
+  <Step title="Application opens">
+    The selected application opens immediately, and the Application Manager closes automatically.
+  </Step>
+</Steps>
+
+<Tip>
+  The Application Manager automatically closes after launching an app, keeping your workspace clean. If you change your mind, press `Escape` or click the close button.
+</Tip>
+
+### Grid Organization
+
+Applications are organized in a logical flow:
+
+1. **Row 1**: Terminal Lab, File Manager, Style Manager, Audio Setup
+2. **Row 2**: Process Monitor, Calendar, Clock, XEmacs
+3. **Row 3**: Screenshooter, Netscape, Lynx, Man Pages
+4. **Row 4**: Share Theme, Keyboard Shortcuts
+
+<Info>
+  The grid uses CSS grid layout (`.app-grid`) with responsive columns that adapt to window size while maintaining consistent icon spacing.
+</Info>
+
+## Window Behavior
+
+### Modal-Style Window
+
+The Application Manager uses a modal-style window with specific characteristics:
+
+- **Class**: `.cde-retro-modal` for modal styling
+- **Non-Maximizable**: `data-no-maximize="true"` prevents maximizing
+- **High Z-Index**: Opens at z-index 10000, above regular windows
+- **Centered**: Automatically centered on screen via `WindowManager.centerWindow()`
+- **Fixed Size**: Sized to fit the 14-icon grid layout
+
+**Window Structure**: `AppManager.astro:6-11`
+```astro
+<div class="cde-retro-modal app-manager-window" id="appManager" data-no-maximize="true">
+  <div class="titlebar" id="appManagerTitlebar">
+    <WindowMinimize windowId="appManager" />
+    <span class="titlebar-text">Application Manager - /usr/dt/appconfig/appmanager</span>
+    <WindowControls windowId="appManager" closeFunction="appManager.close" disableMaximize={true} />
+  </div>
+```
+
+### Audio Feedback
+
+The Application Manager plays audio feedback:
+
+- **Window Open**: Plays window open sound via `AudioManager.windowOpen()`
+- **Window Close**: Plays window close sound via `AudioManager.windowClose()`
+
+**Audio Integration**: `appmanager.ts:38-40`
+```typescript
+if (window.AudioManager) {
+  window.AudioManager.windowOpen();
+}
+```
+
+## Implementation Details
+
+### AppManager Class
+
+The Application Manager is implemented as a class in `appmanager.ts`:
+
+<CardGroup cols={2}>
+  <Card title="constructor()" icon="wrench">
+    Initializes the AppManager and binds the menu button listener
+  </Card>
+  
+  <Card title="init()" icon="play">
+    Private method that attaches click event to `.cde-menu-btn`
+  </Card>
+  
+  <Card title="open()" icon="folder-open">
+    Opens the Application Manager window, centers it, and plays audio
+  </Card>
+  
+  <Card title="close()" icon="xmark">
+    Closes the Application Manager window and plays close audio
+  </Card>
+</CardGroup>
+
+**Class Definition**: `appmanager.ts:4-52`
+```typescript
+export class AppManager {
+  private id = 'appManager';
+
+  constructor() {
+    this.init();
+  }
+
+  public open(): void {
+    const win = document.getElementById(this.id);
+    if (win) {
+      win.style.display = 'flex';
+      win.style.zIndex = '10000';
+      
+      requestAnimationFrame(() => {
+        WindowManager.centerWindow(win);
+        if (window.focusWindow) {
+          window.focusWindow(this.id);
+        }
+      });
+    }
+  }
+}
+```
+
+### Lazy Loading
+
+Many applications use lazy loading via the `moduleLoader`:
+
+- Applications are loaded on-demand when first opened
+- Stub functions are exposed globally until the real module loads
+- This improves initial page load performance
+
+**Panel Stub Initialization**: `panel.ts:42-53`
+```typescript
+(window as any).appManager = appManagerStub;
+(window as any).TerminalLab = createStub('terminal', 'TerminalLab');
+(window as any).CalendarManager = createStub('calendar', 'CalendarManager', 'init');
+(window as any).ManViewer = createStub('manviewer', 'ManViewer');
+(window as any).Netscape = createStub('netscape', 'Netscape');
+(window as any).Lynx = createStub('lynx', 'Lynx');
+```
+
+<Warning>
+  The first time you launch an application, there may be a brief loading delay as the module is fetched and initialized. Subsequent opens will be instant.
+</Warning>
+
+## Keyboard Shortcuts
+
+| Action | Shortcut |
+|--------|----------|
+| Close Application Manager | `Escape` or `Ctrl+W` |
+| Minimize | `Ctrl+M` |
+
+<Info>
+  Individual applications have their own keyboard shortcuts once opened. See the Keyboard Shortcuts guide for a complete reference.
+</Info>
+
+## Design Philosophy
+
+The Application Manager follows CDE's application folder paradigm:
+
+- **Central Location**: All applications accessible from one place
+- **Visual Icons**: Recognizable icons for each application
+- **Path Display**: Authentic CDE path in titlebar (`/usr/dt/appconfig/appmanager`)
+- **Object Count**: Status bar shows total application count
+- **Auto-Close**: Manager closes after launching an app to reduce clutter
+
+<Tip>
+  The Application Manager replicates the CDE Application Manager functionality, which was the standard way to launch applications in the Common Desktop Environment on Unix workstations.
+</Tip>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="All Applications" icon="apps">
+    Browse documentation for all 14 applications available in the Application Manager
+  </Card>
+  
+  <Card title="Keyboard Shortcuts" icon="keyboard" href="/user-guide/keyboard-shortcuts">
+    Learn keyboard shortcuts for launching applications directly
+  </Card>
+  
+  <Card title="Window Management" icon="window" href="/technical/window-manager">
+    Understanding window operations and the modal window system
+  </Card>
+  
+  <Card title="Panel" icon="bars" href="/user-guide/tips-and-tricks">
+    Tips for organizing and using the front panel effectively
+  </Card>
+</CardGroup>

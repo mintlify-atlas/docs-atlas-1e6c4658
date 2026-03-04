@@ -53,7 +53,10 @@
               "applications/file-manager",
               "applications/netscape-navigator",
               "applications/lynx-browser",
-              "applications/man-viewer"
+              "applications/man-viewer",
+              "applications/calendar",
+              "applications/process-monitor",
+              "applications/app-manager"
             ]
           }
         ]

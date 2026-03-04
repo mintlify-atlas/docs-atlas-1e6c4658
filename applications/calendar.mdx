@@ -1,0 +1,236 @@
+---
+title: 'Calendar'
+description: 'Interactive calendar for viewing dates and navigating months in Time Capsule'
+icon: 'calendar'
+---
+
+The Calendar application provides a simple, interactive monthly calendar view with authentic CDE styling. Navigate through months to view dates and track the current day.
+
+<Note>
+  The Calendar is implemented in `calendar.ts` (147 lines) and launched from the front panel Clock icon or Application Manager.
+</Note>
+
+## Opening Calendar
+
+There are three ways to access the Calendar:
+
+<Tabs>
+  <Tab title="Front Panel">
+    Click the **Clock** icon in the front panel to open the Calendar window.
+  </Tab>
+  
+  <Tab title="Application Manager">
+    1. Open **Application Manager** from the front panel
+    2. Click the **Calendar** icon in the app grid
+  </Tab>
+  
+  <Tab title="Keyboard Shortcut">
+    Use the front panel Clock icon (no dedicated keyboard shortcut)
+  </Tab>
+</Tabs>
+
+## Interface Overview
+
+The Calendar window displays:
+
+<CardGroup cols={2}>
+  <Card title="Header" icon="arrow-left-arrow-right">
+    Month/year display with previous/next navigation buttons
+  </Card>
+  
+  <Card title="Weekday Labels" icon="bars">
+    Su, Mo, Tu, We, Th, Fr, Sa labels
+  </Card>
+  
+  <Card title="Calendar Grid" icon="calendar-days">
+    Days of the month in a 7-column grid layout
+  </Card>
+  
+  <Card title="Status Bar" icon="info">
+    Shows current date: "Today: DD/MM/YYYY"
+  </Card>
+</CardGroup>
+
+## Navigation
+
+### Month Navigation
+
+Navigate between months using the header controls:
+
+- **Previous Month**: Click the left arrow button with previous icon
+- **Next Month**: Click the right arrow button with right icon
+- **Current Month**: Displays in header as "Month YYYY" (e.g., "March 2026")
+
+<Info>
+  The calendar maintains your viewing position as you navigate. The status bar always shows today's actual date for reference.
+</Info>
+
+### Visual Indicators
+
+<AccordionGroup>
+  <Accordion title="Today Highlighting">
+    The current day is automatically highlighted with the `.today` CSS class when viewing the current month. This makes it easy to identify today's date at a glance.
+    
+    **Implementation**: `calendar.ts:82-84`
+    ```typescript
+    if (isCurrentMonth && day === today.getDate()) {
+      dayEl.classList.add('today');
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Empty Cells">
+    Days before the first of the month appear as empty cells with the `.empty` class, properly aligning the calendar grid to start on the correct weekday.
+    
+    **Padding Logic**: `calendar.ts:68-72`
+    ```typescript
+    for (let i = 0; i < firstDay; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day empty';
+      daysContainer.appendChild(empty);
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Features
+
+### Month Rendering
+
+The calendar dynamically renders based on the selected month:
+
+1. **Calculate First Day**: Determines which weekday the month starts on
+2. **Days in Month**: Calculates total days (28-31 depending on month/year)
+3. **Grid Layout**: Creates proper alignment with empty cells for padding
+4. **Today Detection**: Highlights current day when viewing current month
+
+<Tip>
+  The calendar correctly handles leap years and different month lengths automatically using JavaScript's `Date` object.
+</Tip>
+
+### Window Management
+
+The Calendar window includes:
+
+- **Non-Maximizable**: The `disableMaximize={true}` attribute prevents maximizing (fixed size)
+- **Minimizable**: Can be minimized to the panel
+- **Draggable**: Move the window by dragging the titlebar
+- **Audio Feedback**: Plays window open/close sounds via AudioManager
+
+**Window Operations**: `calendar.ts:95-126`
+```typescript
+function open(): void {
+  const win = document.getElementById('calendar-window');
+  if (win) {
+    win.style.display = 'flex';
+    requestAnimationFrame(() => {
+      if (window.centerWindow) window.centerWindow(win);
+      if (window.focusWindow) window.focusWindow('calendar-window');
+    });
+    if (window.AudioManager) window.AudioManager.windowOpen();
+  }
+}
+```
+
+## Implementation Details
+
+### CalendarManager
+
+The Calendar is managed by the `CalendarManager` singleton exported from `calendar.ts`:
+
+<CardGroup cols={2}>
+  <Card title="init()" icon="play">
+    Initializes the calendar, binds event handlers, and renders the current month
+  </Card>
+  
+  <Card title="render()" icon="rotate">
+    Renders the calendar grid for the currently selected month
+  </Card>
+  
+  <Card title="open()" icon="folder-open">
+    Opens and centers the calendar window
+  </Card>
+  
+  <Card title="close()" icon="xmark">
+    Closes the calendar window
+  </Card>
+  
+  <Card title="toggle()" icon="repeat">
+    Toggles calendar visibility (open if closed, close if open)
+  </Card>
+  
+  <Card title="changeMonth()" icon="calendar-arrow">
+    Changes displayed month by delta (+1 for next, -1 for previous)
+  </Card>
+</CardGroup>
+
+### Month Array
+
+**Defined in**: `calendar.ts:13-26`
+```typescript
+const months = [
+  'January', 'February', 'March', 'April',
+  'May', 'June', 'July', 'August',
+  'September', 'October', 'November', 'December'
+];
+```
+
+### State Management
+
+- **currentDate**: `Date` object tracking the displayed month/year
+- **initialized**: Boolean flag preventing duplicate initialization
+
+<Warning>
+  The Calendar does not persist appointments or events. It's a view-only date display tool, not a full calendar application with scheduling features.
+</Warning>
+
+## Usage Tips
+
+<Steps>
+  <Step title="Quick Date Reference">
+    Keep the Calendar open in a separate workspace for quick date reference while working in other applications.
+  </Step>
+  
+  <Step title="Month Planning">
+    Navigate forward to view upcoming months when planning dates or deadlines.
+  </Step>
+  
+  <Step title="Historical Dates">
+    Navigate backward to check dates from previous months. The calendar correctly renders any historical date.
+  </Step>
+</Steps>
+
+<Tip>
+  The Calendar window is sized appropriately for the grid layout and cannot be maximized. This maintains the authentic CDE calendar appearance.
+</Tip>
+
+## Keyboard Shortcuts
+
+The Calendar primarily uses mouse interactions:
+
+| Action | Method |
+|--------|--------|
+| Previous Month | Click left arrow button |
+| Next Month | Click right arrow button |
+| Close Window | Click X button or `Ctrl+W` (window close) |
+| Minimize | Click minimize button |
+
+<Info>
+  While there's no dedicated keyboard shortcut to open the Calendar, you can use standard window management shortcuts (`Ctrl+W` to close, `Ctrl+M` to minimize) once the window is focused.
+</Info>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Application Manager" icon="grid" href="/applications/app-manager">
+    Launch Calendar from the Application Manager
+  </Card>
+  
+  <Card title="Window Management" icon="window" href="/technical/window-manager">
+    Understanding window operations and management
+  </Card>
+  
+  <Card title="Workspaces" icon="table-cells" href="/user-guide/workspaces">
+    Use workspaces to organize Calendar with other tools
+  </Card>
+</CardGroup>
