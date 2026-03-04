@@ -1,0 +1,96 @@
+{
+  "projectType": "saas",
+  "projectName": "Time Capsule",
+  "projectDescription": "A Progressive Web App recreating the 1990s Unix CDE desktop experience in the browser.",
+  "theme": "aspen",
+  "primaryColor": "#5bafb2",
+  "lightColor": "#272651",
+  "darkColor": "#d8d8d8",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "pwa-installation"
+            ]
+          },
+          {
+            "group": "User Guide",
+            "pages": [
+              "user-guide/workspaces",
+              "user-guide/keyboard-shortcuts",
+              "user-guide/style-manager",
+              "user-guide/tips-and-tricks"
+            ]
+          },
+          {
+            "group": "Applications",
+            "pages": [
+              "applications/xemacs",
+              "applications/terminal-lab",
+              "applications/file-manager",
+              "applications/netscape-navigator",
+              "applications/lynx-browser",
+              "applications/man-viewer"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Technical",
+        "groups": [
+          {
+            "group": "Architecture",
+            "pages": [
+              "technical/architecture",
+              "technical/storage",
+              "technical/window-manager",
+              "technical/virtual-filesystem"
+            ]
+          },
+          {
+            "group": "Development",
+            "pages": [
+              "technical/contributing",
+              "technical/version-updates"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "76 authentic CDE color palettes and 168 original XPM backdrops",
+    "XEmacs editor with real Emacs keybindings and GNU splash screen",
+    "Terminal Lab with 22 interactive Unix lessons",
+    "Virtual filesystem with IndexedDB persistence",
+    "Netscape Navigator and Lynx browsers for web browsing",
+    "Man page viewer with 28 essential Unix commands",
+    "4 virtual workspaces with keyboard shortcuts",
+    "PWA installation with offline support",
+    "Window management with drag, minimize, maximize controls",
+    "Boot sequence with authentic Debian messages",
+    "Style Manager for customizing themes and sharing via URL",
+    "Context menus and keyboard shortcuts throughout"
+  ],
+  "publicApiSurface": [
+    "WindowManager - window focus, drag, minimize, maximize, close",
+    "VFS (Virtual Filesystem) - file operations, directory navigation, trash",
+    "StyleManager - theme application, palette management, backdrop rendering",
+    "SettingsManager - persistent settings with IndexedDB",
+    "AudioManager - system sound synthesis via Web Audio API",
+    "XPMParser - XPM image format parsing and rendering",
+    "Desktop - icon management, workspace switching, context menus",
+    "Emacs - text editor with Emacs keybindings and minibuffer",
+    "TerminalLab - interactive Unix tutorial system",
+    "FileManager - file browser with context menu operations",
+    "NetscapeNavigator - web browser with modern compatibility",
+    "Lynx - text-based web browser",
+    "ManViewer - Unix manual page viewer"
+  ]
+}
