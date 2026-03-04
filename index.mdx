@@ -1,97 +1,239 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+mode: custom
 ---
 
-## Setting up
+<div className="relative w-full overflow-hidden bg-black dark:bg-black py-20 lg:py-24">
+  <div className="absolute inset-0 bg-gradient-to-br from-[#272651] via-black to-[#5bafb2]/20"></div>
+  
+  <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+    <div className="grid lg:grid-cols-12 gap-12 items-center">
+      <div className="lg:col-span-7 space-y-8">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white dark:text-white leading-tight">
+          Welcome to Time Capsule Documentation
+        </h1>
+        <p className="text-base sm:text-lg lg:text-xl text-gray-300 dark:text-gray-300 max-w-2xl">
+          Step back into the 1990s Unix workstation era. Explore a fully interactive CDE desktop experience running in your browser — complete with authentic applications, virtual filesystem, and customizable themes.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <a 
+            href="/quickstart" 
+            className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-[#5bafb2] hover:bg-[#4a9fa2] text-white dark:text-white font-semibold transition-colors no-underline"
+          >
+            Get Started
+          </a>
+          <a 
+            href="https://debian.com.mx" 
+            target="_blank"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-white/30 dark:border-white/30 bg-white/10 dark:bg-white/10 hover:bg-white/20 dark:hover:bg-white/20 text-white dark:text-white font-semibold transition-colors no-underline"
+          >
+            Try Live Demo
+          </a>
+        </div>
+      </div>
+      
+      <div className="lg:col-span-5 flex justify-center">
+        <img 
+          src="https://media.brand.dev/87f124fb-4d89-4f3a-836e-fff51cf5aa5c.png" 
+          alt="Time Capsule Logo" 
+          noZoom
+          className="w-full max-w-md h-auto"
+        />
+      </div>
+    </div>
+  </div>
+</div>
 
-Get your documentation site up and running in minutes.
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="space-y-4 mb-8">
+    <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">Quick start</h2>
+    <p className="text-base text-gray-600 dark:text-gray-400">Get up and running with Time Capsule in minutes</p>
+  </div>
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+  <Steps>
+    <Step title="Visit the application">
+      Open [debian.com.mx](https://debian.com.mx) in a modern browser. Watch the authentic Debian boot sequence initialize the system.
+    </Step>
+    
+    <Step title="Explore the desktop">
+      Click the desktop icons to launch applications: **XEmacs**, **Terminal Lab**, **File Manager**, **Netscape Navigator**, and more. Try right-clicking anywhere to access context menus.
+      
+      <Note>Use `Ctrl+Alt+1-4` to switch between the four virtual workspaces.</Note>
+    </Step>
+    
+    <Step title="Customize your experience">
+      Open the **Style Manager** from the front panel to choose from 76 authentic CDE color palettes and 168 original XPM backdrops. Your theme can be shared via URL.
+      
+      <Accordion title="Example: Changing themes">
+        1. Click **Style Manager** on the front panel
+        2. Navigate to the **Palette** or **Backdrop** section
+        3. Select your preferred theme
+        4. Click **Share Theme** to generate a shareable URL
+      </Accordion>
+    </Step>
+    
+    <Step title="Install as a PWA">
+      For the best experience, install Time Capsule as a Progressive Web App. Click the **Install PWA** icon in your browser, and it will run like a native desktop application with offline support.
+    </Step>
+  </Steps>
+</div>
 
-## Make it yours
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="space-y-4 mb-8">
+    <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">Explore by topic</h2>
+    <p className="text-base text-gray-600 dark:text-gray-400">Everything you need to master Time Capsule</p>
+  </div>
 
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
+  <CardGroup cols={2}>
     <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
+      title="XEmacs editor"
+      icon="code"
+      href="/applications/xemacs"
+    >
+      Real Emacs keybindings, interactive minibuffer, and GNU splash screen
+    </Card>
+    <Card
+      title="Terminal Lab"
+      icon="terminal"
+      href="/applications/terminal-lab"
+    >
+      22 interactive Unix lessons — learn by doing, from `ls` to pipes
+    </Card>
+    <Card
+      title="Virtual filesystem"
+      icon="folder-tree"
+      href="/applications/file-manager"
+    >
+      Create files, make directories, navigate with context menus
+    </Card>
+    <Card
+      title="Style Manager"
+      icon="palette"
+      href="/user-guide/style-manager"
+    >
+      Customize colors, fonts, backdrops — and share themes via URL
+    </Card>
+    <Card
+      title="Workspaces"
+      icon="window-restore"
+      href="/user-guide/workspaces"
+    >
+      Organize applications across four virtual desktops
+    </Card>
+    <Card
+      title="Keyboard shortcuts"
+      icon="keyboard"
+      href="/user-guide/keyboard-shortcuts"
+    >
+      Navigate like a power user with 20+ keyboard shortcuts
+    </Card>
+  </CardGroup>
+</div>
 
-## Create beautiful pages
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="space-y-4 mb-8">
+    <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">Key features</h2>
+    <p className="text-base text-gray-600 dark:text-gray-400">What makes Time Capsule special</p>
+  </div>
 
-Everything you need to create world-class documentation.
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-3xl mb-3">🎨</div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">76 Authentic palettes</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">From iconic Platinum to warm Broica — authentic Motif themes that transform your desktop</p>
+    </div>
+    
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-3xl mb-3">🖼️</div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">168 Original backdrops</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">Dithered XPM textures from the 90s — CircuitBoards, BrokenIce, Afternoon</p>
+    </div>
+    
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-3xl mb-3">💾</div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Persistent filesystem</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">IndexedDB-powered virtual filesystem with real file operations</p>
+    </div>
+    
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-3xl mb-3">🌐</div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Netscape & Lynx</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">Browse the modern web with retro compatibility and text-based navigation</p>
+    </div>
+    
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-3xl mb-3">📱</div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Works everywhere</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">Desktop, tablet, mobile — touch gestures and keyboard shortcuts adapt</p>
+    </div>
+    
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-3xl mb-3">🔧</div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Built with Astro</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">TypeScript, Astro, and authentic CDE design principles</p>
+    </div>
+  </div>
+</div>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="space-y-4 mb-8">
+    <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">Technical resources</h2>
+    <p className="text-base text-gray-600 dark:text-gray-400">Understand how Time Capsule works under the hood</p>
+  </div>
 
-## Need inspiration?
+  <CardGroup cols={2}>
+    <Card
+      title="Architecture overview"
+      icon="diagram-project"
+      href="/technical/architecture"
+    >
+      Modular design, event-driven system, and core components
+    </Card>
+    <Card
+      title="Window Manager"
+      icon="window-maximize"
+      href="/technical/window-manager"
+    >
+      Focus, drag, minimize, maximize, and Z-index management
+    </Card>
+    <Card
+      title="Virtual filesystem"
+      icon="hard-drive"
+      href="/technical/virtual-filesystem"
+    >
+      IndexedDB-powered storage with POSIX-like operations
+    </Card>
+    <Card
+      title="Contributing"
+      icon="code-pull-request"
+      href="/technical/contributing"
+    >
+      Add themes, improve accessibility, or refactor code
+    </Card>
+  </CardGroup>
+</div>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<div className="mt-24 mb-16 max-w-5xl mx-auto px-6">
+  <div className="p-8 lg:p-12 rounded-2xl border border-[#5bafb2]/30 dark:border-[#5bafb2]/30 bg-gradient-to-br from-[#272651]/20 to-[#5bafb2]/10 dark:from-[#272651]/20 dark:to-[#5bafb2]/10 text-center space-y-6">
+    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+      Ready to explore the past?
+    </h2>
+    <p className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+      Experience a fully functional 1990s Unix workstation — running entirely in your browser with modern web technologies.
+    </p>
+    <div className="flex flex-wrap justify-center gap-4">
+      <a 
+        href="/quickstart" 
+        className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-[#5bafb2] hover:bg-[#4a9fa2] text-white dark:text-white font-semibold transition-colors no-underline"
+      >
+        Get Started
+      </a>
+      <a 
+        href="https://github.com/victxrlarixs/debian-cde" 
+        target="_blank"
+        className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-gray-300 dark:border-[#27272a] bg-white dark:bg-[#1a1d27] hover:bg-gray-50 dark:hover:bg-[#242838] text-gray-900 dark:text-white font-semibold transition-colors no-underline"
+      >
+        View on GitHub
+      </a>
+    </div>
+  </div>
+</div>

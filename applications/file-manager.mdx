@@ -1,0 +1,391 @@
+---
+title: File Manager
+description: CDE-style file manager with drag-and-drop and context menus
+---
+
+The File Manager is Time Capsule's graphical file browser, providing a classic CDE-inspired interface for navigating, organizing, and manipulating files and folders in the virtual filesystem.
+
+## Features
+
+- **Icon View**: Visual file and folder display
+- **Drag & Drop**: Move files between folders
+- **Context Menus**: Right-click for quick actions
+- **Breadcrumb Navigation**: Click path segments to navigate
+- **Search**: Real-time file filtering
+- **Sorting**: By name, size, or date
+- **Trash Support**: Restore deleted items
+- **Keyboard Shortcuts**: Fast file operations
+
+## Opening Files and Folders
+
+### Double-Click to Open
+
+- **Folders**: Opens in current window
+- **Files**: Opens in XEmacs text editor
+
+### Single-Click to Select
+
+Click once to select an item:
+- Selection highlights with blue background
+- Shows in status bar: "1 item"
+- Enables context menu actions
+
+## Navigation
+
+### Breadcrumb Bar
+
+Click any segment in the path to jump to that location:
+```
+/ > home > victxrlarixs > Documents > project_web
+```
+
+Click "Documents" to go directly there.
+
+### Navigation Buttons
+
+**Toolbar**:
+- **← Back**: Return to previous location
+- **→ Forward**: Go forward in history
+- **↑ Up**: Go to parent directory
+- **🏠 Home**: Jump to home directory
+
+**Keyboard**:
+- `Backspace`: Go up one level
+- Browser-style history navigation
+
+### Address Bar
+
+Click the breadcrumb area to enter a path manually:
+
+1. Click on the breadcrumb bar
+2. Type the path: `/home/victxrlarixs/Desktop/`
+3. Press `Enter` to navigate
+4. Press `Escape` to cancel
+
+## File Operations
+
+### Creating Files and Folders
+
+**New File**:
+1. Go to `File` → `New File`
+2. Enter filename
+3. Press OK
+4. Empty file appears in current directory
+
+**New Folder**:
+1. Go to `File` → `New Folder`
+2. Enter folder name
+3. Press OK
+
+**Keyboard**: Access via File menu
+
+### Copying Files
+
+**Method 1: Context Menu**
+1. Right-click file
+2. Select "Copy"
+3. Navigate to destination
+4. Right-click empty space
+5. Select "Paste"
+
+**Method 2: Keyboard**
+1. Select file
+2. Press `Ctrl+C` to copy
+3. Navigate to destination
+4. Press `Ctrl+V` to paste
+
+### Moving Files
+
+**Drag & Drop**:
+1. Click and hold file
+2. Drag to destination folder
+3. Release to drop
+4. File moves to new location
+
+**Cut & Paste**:
+1. Right-click file → "Cut" (or `Ctrl+X`)
+2. Navigate to destination
+3. Right-click empty space → "Paste" (or `Ctrl+V`)
+
+### Renaming Files
+
+**Method 1: Context Menu**
+1. Right-click file
+2. Select "Rename"
+3. Enter new name
+4. Press OK
+
+**Method 2: Keyboard**
+1. Select file
+2. Press `F2`
+3. Enter new name
+4. Press OK
+
+### Deleting Files
+
+**Trash (Recoverable)**:
+1. Select file
+2. Press `Delete` key, or
+3. Right-click → "Delete"
+4. Confirm to move to trash
+
+**Permanent Delete**:
+If you're already in the `.trash` folder:
+1. Delete files normally
+2. Confirm permanent deletion
+3. Files are permanently removed
+
+### Restoring from Trash
+
+1. Navigate to `~/.trash/`
+2. Right-click deleted file
+3. Select "Restore"
+4. File returns to original location
+
+### Empty Trash
+
+1. Go to `File` → `Empty Trash`
+2. Confirm permanent deletion
+3. All trash items are removed
+
+## Sorting and Filtering
+
+### Sort Options
+
+Go to `View` menu:
+- **Sort by Name**: Alphabetical order
+- **Sort by Size**: Smallest to largest
+- **Sort by Date**: Oldest to newest
+
+Click again to reverse order (descending).
+
+### Real-Time Search
+
+Use the search box:
+1. Type filename or partial name
+2. File list filters instantly
+3. Status bar shows: "5 items (filtered)"
+4. Clear search to see all files
+
+**Keyboard**: Press `Ctrl+F` to focus search box
+
+### Show Hidden Files
+
+Go to `View` → `Show Hidden Files`
+
+Reveals files starting with `.` (like `.bashrc`, `.trash`)
+
+## Context Menus
+
+### File Context Menu
+
+Right-click any file:
+
+- **Open**: Open file (folders navigate, files open in XEmacs)
+- **Copy**: Copy to clipboard
+- **Cut**: Cut to clipboard for moving
+- **Rename**: Change file name
+- **Properties**: View file details
+- **Delete**: Move to trash
+
+### Folder Context Menu
+
+Same as file context menu, plus:
+- Drop targets for drag & drop operations
+- "Open" navigates into folder
+
+### Empty Space Context Menu
+
+Right-click on empty area:
+
+- **Paste**: Paste clipboard contents
+- **New File**: Create new file
+- **New Folder**: Create new folder
+
+## Properties Dialog
+
+Right-click file → "Properties" shows:
+
+- **Name**: Filename
+- **Type**: File or folder
+- **Path**: Full path
+- **Size**: Human-readable (e.g., "2.5 KB")
+- **Items**: Count of files in folder
+- **Modified**: Last modification date
+- **Owner**: File owner (victx)
+- **Permissions**: Unix-style (e.g., `rw-r--r--`)
+
+Example:
+```
+Name: index.html
+Type: file
+Path: /home/victxrlarixs/Documents/project_web/index.html
+Size: 1.2 KB
+Modified: Sat Feb 11 2023 14:35:00
+Owner: victx
+Permissions: rw-r--r--
+```
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+C` | Copy selected file |
+| `Ctrl+X` | Cut selected file |
+| `Ctrl+V` | Paste from clipboard |
+| `Ctrl+F` | Focus search box |
+| `Delete` | Delete selected file |
+| `F2` | Rename selected file |
+| `Backspace` | Go up one directory |
+| `Enter` | Open selected file/folder |
+
+## Menubar
+
+### File Menu
+
+- **New File**: Create text file
+- **New Folder**: Create directory
+- **Empty Trash**: Permanently delete trash (only visible when viewing trash)
+
+### Edit Menu
+
+- **Copy**: Copy selection
+- **Cut**: Cut selection
+- **Paste**: Paste clipboard
+- **Rename**: Rename selection
+
+### View Menu
+
+- **Sort by Name**: Alphabetical
+- **Sort by Size**: File size
+- **Sort by Date**: Modification time
+- **Show Hidden Files**: Toggle hidden files
+- **Refresh**: Reload current directory
+
+### Go Menu
+
+- **Back**: Previous location
+- **Forward**: Next location (if available)
+- **Up**: Parent directory
+- **Home**: Home directory
+
+### Places Menu
+
+Quick navigation:
+- **Settings**: `~/settings/`
+- **Manual Pages**: `~/man-pages/`
+- **Desktop**: `~/Desktop/`
+
+## Drag and Drop
+
+### Moving Files
+
+1. **Drag**: Click and hold file icon
+2. **Drag over folder**: Folder highlights
+3. **Drop**: Release mouse button
+4. File moves to destination
+
+### Visual Feedback
+
+- **Dragging**: File icon follows cursor
+- **Valid drop target**: Folder shows blue border
+- **Invalid target**: No highlight
+
+### Drop on Background
+
+Dragging to empty space moves file to current directory.
+
+## File Icons
+
+- **Folder**: Yellow folder icon
+- **Empty File**: White document icon
+- **File with Content**: Green file icon
+
+Icons help identify file types at a glance.
+
+## Status Bar
+
+Bottom bar displays:
+- Item count: "15 items"
+- Filtered results: "8 items (filtered)"
+- Updates in real-time
+
+## Special Folders
+
+### Home Directory
+
+`/home/victxrlarixs/` - User's home folder
+
+Contains:
+- `Desktop/` - Desktop files
+- `Documents/` - User documents
+- `Downloads/` - Downloaded files
+- `.trash/` - Deleted items (hidden)
+
+### Desktop
+
+Files in `~/Desktop/` appear as desktop icons.
+
+### Trash
+
+`~/.trash/` stores deleted files:
+- Navigate manually to view
+- Right-click files to restore
+- Empty trash to delete permanently
+
+## Integration with XEmacs
+
+- Double-clicking text files opens them in XEmacs
+- File path is passed automatically
+- Saving in XEmacs updates File Manager
+- File Manager refreshes on changes
+
+## Tips and Tricks
+
+<AccordionGroup>
+  <Accordion title="Fast Navigation">
+    Quick ways to move around:
+    
+    - Click breadcrumb segments
+    - Use Go menu shortcuts
+    - Press Backspace to go up
+    - Type paths in address bar (click breadcrumbs first)
+  </Accordion>
+
+  <Accordion title="Bulk Operations">
+    While Time Capsule doesn't support multi-select, you can:
+    
+    - Use Terminal Lab for batch operations
+    - Create folders to organize before moving
+    - Use copy/paste workflow for multiple items
+  </Accordion>
+
+  <Accordion title="Finding Files">
+    Can't find a file?
+    
+    - Use the search box
+    - Check if hidden files are shown (View menu)
+    - Look in `.trash/` if recently deleted
+    - Use Terminal Lab: `find` or `locate` commands
+  </Accordion>
+
+  <Accordion title="Keyboard Navigation">
+    Work faster with keyboard:
+    
+    - `Ctrl+C`, `Ctrl+V` for copy/paste
+    - `F2` to rename quickly
+    - `Delete` to move to trash
+    - `Backspace` to go up
+    - `Ctrl+F` to search
+  </Accordion>
+</AccordionGroup>
+
+## Source Code
+
+File Manager is implemented in:
+- `/src/scripts/features/filemanager.ts`: Core file operations (968 lines)
+- Drag and drop with visual feedback
+- Context menus with 20+ actions
+- Integration with VFS (Virtual Filesystem)
+- Real-time search and sorting
+- Trash management with restore capability

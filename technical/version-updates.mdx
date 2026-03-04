@@ -1,0 +1,739 @@
+---
+title: Version Updates System
+description: Automatic version management, cache clearing, and Unix-style update sequences
+---
+
+## Overview
+
+Time Capsule includes an automatic version management system that handles cache clearing and displays an authentic Unix-style package update sequence when the application version changes.
+
+<Info>
+The system mimics real Unix package management, providing a seamless and authentic update experience without interrupting the user flow.
+</Info>
+
+## How It Works
+
+### Version Detection
+
+When the application loads, the `VersionManager` checks if the stored version matches the current version:
+
+```typescript
+// Stored in localStorage: 'cde-app-version'
+const storedVersion = localStorage.getItem('cde-app-version');
+const currentVersion = import.meta.env.PUBLIC_APP_VERSION;
+
+if (storedVersion !== currentVersion) {
+  // Trigger update sequence
+}
+```
+
+<Tabs>
+  <Tab title="version-manager.ts">
+    ```typescript
+    export class VersionManager {
+      private currentVersion: string;
+
+      private constructor() {
+        // Version from package.json (injected at build time)
+        this.currentVersion = import.meta.env.PUBLIC_APP_VERSION || '1.0.0';
+      }
+
+      public async checkVersion(): Promise<void> {
+        const storedVersion = localStorage.getItem('cde-app-version');
+
+        if (!storedVersion) {
+          // First time user
+          localStorage.setItem('cde-app-version', this.currentVersion);
+          return;
+        }
+
+        if (storedVersion !== this.currentVersion) {
+          await this.performVersionUpdate(storedVersion, this.currentVersion);
+        }
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Location">
+    **File**: `/src/scripts/core/version-manager.ts:32`
+    
+    The version check runs on application initialization before the desktop loads.
+  </Tab>
+</Tabs>
+
+### Update Trigger
+
+When a version mismatch is detected, the system performs these steps:
+
+<Steps>
+  <Step title="Clear localStorage">
+    Remove all localStorage items except preserved keys:
+    
+    ```typescript
+    const preserveKeys: string[] = [];
+    const allKeys = Object.keys(localStorage);
+    
+    allKeys.forEach((key) => {
+      if (!preserveKeys.includes(key) && key !== 'cde-app-version') {
+        localStorage.removeItem(key);
+      }
+    });
+    ```
+  </Step>
+  
+  <Step title="Clear IndexedDB">
+    Clear the settings store:
+    
+    ```typescript
+    const { indexedDBManager, STORES } = await import('./indexeddb-manager');
+    await indexedDBManager.clear(STORES.SETTINGS);
+    ```
+  </Step>
+  
+  <Step title="Clear Service Worker Caches">
+    Remove all cached resources:
+    
+    ```typescript
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames.map((cacheName) => caches.delete(cacheName))
+      );
+    }
+    ```
+  </Step>
+  
+  <Step title="Set Pending Update Flag">
+    Mark that an update sequence should be shown:
+    
+    ```typescript
+    localStorage.setItem('cde-pending-update', 'true');
+    ```
+  </Step>
+  
+  <Step title="Reload Page">
+    Force a page reload to show the update sequence:
+    
+    ```typescript
+    window.location.reload();
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+The page reloads automatically after clearing caches. This ensures all changes take effect immediately.
+</Warning>
+
+### Update Sequence Display
+
+On the next boot, the system displays an authentic Unix package update sequence:
+
+<Tabs>
+  <Tab title="Normal Boot">
+    Shows `boot-messages.json` with:
+    - Kernel initialization messages
+    - Service startup logs
+    - Desktop environment loading
+    
+    ```typescript
+    const isUpdateMode = VersionManager.hasPendingUpdate();
+    window.debianBoot = new DebianRealBoot(isUpdateMode);
+    ```
+  </Tab>
+  
+  <Tab title="Update Mode">
+    Shows `update-messages.json` with:
+    - Package list reading
+    - Package downloads
+    - Installation progress
+    - Configuration updates
+    
+    More authentic Unix package management experience.
+  </Tab>
+</Tabs>
+
+### Boot Sequence Generalization
+
+The `DebianRealBoot` class accepts a mode parameter:
+
+```typescript
+class DebianRealBoot {
+  constructor(isUpdateMode: boolean) {
+    this.messagesFile = isUpdateMode 
+      ? '/data/update-messages.json'
+      : '/data/boot-messages.json';
+  }
+}
+```
+
+Both modes share:
+- Boot screen component
+- CSS classes and animations
+- Progress bar
+- Completion logic
+
+<Info>
+This design allows code reuse while providing different content for each mode.
+</Info>
+
+## File Structure
+
+### Boot Messages
+
+Defines the normal boot sequence:
+
+```json
+{
+  "phases": [
+    {
+      "name": "kernel",
+      "min": 5,
+      "max": 8,
+      "messages": [
+        {
+          "text": "Linux version 2.0.36 (root@debian) (gcc version 2.7.2.3)",
+          "type": "kernel"
+        },
+        {
+          "text": "Console: colour VGA+ 80x25",
+          "type": "kernel"
+        }
+      ]
+    },
+    {
+      "name": "services",
+      "min": 6,
+      "max": 10,
+      "messages": [
+        {
+          "text": "Starting CDE login manager...",
+          "type": "service"
+        }
+      ]
+    }
+  ]
+}
+```
+
+<Note>
+Each phase has min/max timing values to simulate realistic boot delays.
+</Note>
+
+### Update Messages
+
+Defines the package update sequence:
+
+```json
+{
+  "phases": [
+    {
+      "name": "preparation",
+      "min": 3,
+      "max": 5,
+      "messages": [
+        {
+          "text": "Reading package lists... Done",
+          "type": "package"
+        },
+        {
+          "text": "Building dependency tree",
+          "type": "package"
+        }
+      ]
+    },
+    {
+      "name": "packages",
+      "min": 8,
+      "max": 12,
+      "messages": [
+        {
+          "text": "Get:1 http://archive.debian.org/debian bo/main libxpm4 3.4f-1",
+          "type": "download"
+        },
+        {
+          "text": "Get:2 http://archive.debian.org/debian bo/main cde-base 2.2.0-1",
+          "type": "download"
+        }
+      ]
+    },
+    {
+      "name": "installation",
+      "min": 6,
+      "max": 9,
+      "messages": [
+        {
+          "text": "Unpacking libxpm4 (3.4f-1)...",
+          "type": "install"
+        },
+        {
+          "text": "Setting up cde-base (2.2.0-1)...",
+          "type": "install"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Message Types and Colors
+
+### Boot Mode
+
+<CardGroup cols={2}>
+  <Card title="kernel" icon="microchip">
+    **Color**: Gray (#cccccc)
+    
+    Kernel initialization messages
+  </Card>
+  
+  <Card title="cpu" icon="processor">
+    **Color**: Light blue (#88aaff)
+    
+    CPU detection and info
+  </Card>
+  
+  <Card title="memory" icon="memory">
+    **Color**: Orange (#ffaa88)
+    
+    Memory detection and allocation
+  </Card>
+  
+  <Card title="fs" icon="hard-drive">
+    **Color**: Yellow (#ffff88)
+    
+    Filesystem mounting
+  </Card>
+  
+  <Card title="systemd" icon="gears">
+    **Color**: Cyan (#88ffff)
+    
+    Init system messages
+  </Card>
+  
+  <Card title="service" icon="server">
+    **Color**: Green (#00ff00)
+    
+    Service startup
+  </Card>
+  
+  <Card title="drm" icon="display">
+    **Color**: Red (#ff8888)
+    
+    Graphics subsystem
+  </Card>
+  
+  <Card title="desktop" icon="desktop">
+    **Color**: Bright cyan (#00ffaa)
+    
+    Desktop ready
+  </Card>
+</CardGroup>
+
+### Update Mode
+
+<CardGroup cols={2}>
+  <Card title="package" icon="box">
+    **Color**: Light blue (#88aaff)
+    
+    Package operations (reading lists, building dependencies)
+  </Card>
+  
+  <Card title="download" icon="download">
+    **Color**: Orange (#ffaa88)
+    
+    Package downloads from repository
+  </Card>
+  
+  <Card title="install" icon="box-open">
+    **Color**: Green (#00ff00)
+    
+    Package installation and unpacking
+  </Card>
+  
+  <Card title="service" icon="arrows-rotate">
+    **Color**: Green (#00ff00)
+    
+    Service restarts and reloads
+  </Card>
+</CardGroup>
+
+### CSS Implementation
+
+Colors are defined in `/public/css/desktop/boot-screen.css`:
+
+```css
+.boot-kernel { color: #cccccc; }
+.boot-cpu { color: #88aaff; }
+.boot-memory { color: #ffaa88; }
+.boot-fs { color: #ffff88; }
+.boot-systemd { color: #88ffff; }
+.boot-service { color: #00ff00; }
+.boot-drm { color: #ff8888; }
+.boot-desktop { color: #00ffaa; }
+
+.boot-package { color: #88aaff; }
+.boot-download { color: #ffaa88; }
+.boot-install { color: #00ff00; }
+```
+
+## Testing Updates
+
+You can manually test the update sequence for development:
+
+<Steps>
+  <Step title="Open Browser Console">
+    Press F12 or right-click → Inspect → Console
+  </Step>
+  
+  <Step title="Change Version">
+    Run this command in the console:
+    
+    ```javascript
+    localStorage.setItem('cde-app-version', '0.0.1');
+    ```
+  </Step>
+  
+  <Step title="Reload Page">
+    Press F5 or refresh the page
+  </Step>
+  
+  <Step title="Observe Update Sequence">
+    You'll see the package update sequence instead of the normal boot
+  </Step>
+</Steps>
+
+<Note>
+After the update sequence completes, the version will be updated to the current version automatically.
+</Note>
+
+## Triggering Updates in Production
+
+To trigger updates for users in production:
+
+<Steps>
+  <Step title="Update package.json">
+    Increment the version number:
+    
+    ```json
+    {
+      "version": "1.0.32"
+    }
+    ```
+    
+    Current version: **1.0.31**
+  </Step>
+  
+  <Step title="Commit and Deploy">
+    Commit the change and deploy to production:
+    
+    ```bash
+    git add package.json
+    git commit -m "Bump version to 1.0.32"
+    git push origin main
+    ```
+  </Step>
+  
+  <Step title="Users See Update">
+    When users visit the site, they'll automatically see the update sequence
+  </Step>
+</Steps>
+
+<Info>
+The version from `package.json` is injected at build time via Vite as `import.meta.env.PUBLIC_APP_VERSION`.
+</Info>
+
+## Customization
+
+### Adding New Message Types
+
+<Steps>
+  <Step title="Update Messages File">
+    Add to `update-messages.json` or `boot-messages.json`:
+    
+    ```json
+    {
+      "text": "My new message",
+      "type": "newtype"
+    }
+    ```
+  </Step>
+  
+  <Step title="Add CSS Class">
+    In `public/css/desktop/boot-screen.css`:
+    
+    ```css
+    .boot-newtype {
+      color: #ff00ff;
+      font-weight: bold;
+    }
+    ```
+  </Step>
+  
+  <Step title="Update Type Map">
+    In `src/scripts/boot/init.ts`:
+    
+    ```typescript
+    private getLineClass(type: string): string {
+      const map: Record<string, string> = {
+        kernel: 'boot-kernel',
+        cpu: 'boot-cpu',
+        // ... existing types
+        newtype: 'boot-newtype',
+      };
+      return map[type] || 'boot-default';
+    }
+    ```
+  </Step>
+</Steps>
+
+### Preserving User Data During Updates
+
+By default, the update system clears all localStorage. To preserve specific keys:
+
+```typescript
+// src/scripts/core/version-manager.ts:86
+const preserveKeys: string[] = [
+  'cde-system-settings',    // User preferences
+  'cde_high_contrast',      // Accessibility settings
+  'user-custom-theme',      // Custom themes
+  // Add more keys to preserve
+];
+```
+
+<Warning>
+Only preserve keys that are forward-compatible. Breaking changes in data structure should not be preserved.
+</Warning>
+
+### Custom Update Logic
+
+For version-specific migrations, add logic in the update method:
+
+```typescript
+private async performVersionUpdate(
+  oldVersion: string, 
+  newVersion: string
+): Promise<void> {
+  
+  // Version-specific migrations
+  if (oldVersion === '1.0.30' && newVersion === '1.0.31') {
+    await this.migrateSettingsFormat();
+  }
+  
+  if (this.isBreakingChange(oldVersion, newVersion)) {
+    await this.fullCacheClear();
+  } else {
+    await this.partialCacheClear();
+  }
+  
+  // ... rest of update process
+}
+```
+
+## Architecture Benefits
+
+<CardGroup cols={2}>
+  <Card title="No Modal Interruption" icon="window-restore">
+    Updates feel like a natural system operation rather than an intrusive popup
+  </Card>
+  
+  <Card title="Authentic Experience" icon="terminal">
+    Mimics real Unix package management for period-accurate feel
+  </Card>
+  
+  <Card title="Code Reuse" icon="recycle">
+    Same boot screen component handles both normal boot and update modes
+  </Card>
+  
+  <Card title="Flexible" icon="sliders">
+    Easy to add new message types, phases, or customize timing
+  </Card>
+  
+  <Card title="Testable" icon="flask">
+    Can trigger updates manually in console for testing
+  </Card>
+  
+  <Card title="Automatic" icon="wand-magic-sparkles">
+    No user intervention required - just bump version and deploy
+  </Card>
+</CardGroup>
+
+## Related Files
+
+<AccordionGroup>
+  <Accordion title="Core System">
+    **version-manager.ts** - `/src/scripts/core/version-manager.ts`
+    
+    Version detection, cache clearing, and update orchestration
+    
+    **init.ts** - `/src/scripts/boot/init.ts`
+    
+    Boot sequence orchestration and message display
+  </Accordion>
+  
+  <Accordion title="Data Files">
+    **boot-messages.json** - `/src/data/boot-messages.json`
+    
+    Normal boot sequence messages with kernel, services, and desktop startup
+    
+    **update-messages.json** - `/src/data/update-messages.json`
+    
+    Package update sequence with downloads and installation
+  </Accordion>
+  
+  <Accordion title="UI Components">
+    **BootSequence.astro** - `/src/components/desktop/BootSequence.astro`
+    
+    Boot screen component used for both modes
+    
+    **boot-screen.css** - `/public/css/desktop/boot-screen.css`
+    
+    Styling for boot messages, colors, and animations
+  </Accordion>
+</AccordionGroup>
+
+## Version History
+
+### Current Version: 1.0.31
+
+The project uses semantic versioning:
+
+- **Major**: Breaking changes requiring user action
+- **Minor**: New features, backward compatible
+- **Patch**: Bug fixes and minor improvements
+
+<Info>
+Version bumps that require cache clearing should increment at least the minor version.
+</Info>
+
+### Version Update Best Practices
+
+<Tabs>
+  <Tab title="Breaking Changes">
+    **When to use**: Major architectural changes, data structure changes
+    
+    ```json
+    { "version": "2.0.0" }
+    ```
+    
+    - Clear all caches
+    - Show update sequence
+    - Consider data migration
+  </Tab>
+  
+  <Tab title="New Features">
+    **When to use**: Adding applications, new themes, major features
+    
+    ```json
+    { "version": "1.1.0" }
+    ```
+    
+    - May clear caches if needed
+    - Show update sequence
+    - Preserve compatible data
+  </Tab>
+  
+  <Tab title="Bug Fixes">
+    **When to use**: Bug fixes, minor improvements, CSS tweaks
+    
+    ```json
+    { "version": "1.0.32" }
+    ```
+    
+    - Usually no cache clear
+    - No update sequence
+    - Service worker handles updates
+  </Tab>
+</Tabs>
+
+## Future Enhancements
+
+<AccordionGroup>
+  <Accordion title="Migration Scripts">
+    Add version-specific migration scripts:
+    
+    ```typescript
+    class MigrationManager {
+      private migrations = new Map<string, Migration>();
+      
+      register(fromVersion: string, toVersion: string, fn: Migration) {
+        this.migrations.set(`${fromVersion}->${toVersion}`, fn);
+      }
+      
+      async migrate(from: string, to: string) {
+        const key = `${from}->${to}`;
+        const migration = this.migrations.get(key);
+        if (migration) {
+          await migration();
+        }
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Changelog Display">
+    Show changelog after update completes:
+    
+    ```typescript
+    async showChangelog(version: string) {
+      const changes = await fetch(`/changelogs/${version}.md`);
+      const content = await changes.text();
+      this.displayInWindow(content);
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Rollback Capability">
+    Add ability to rollback failed updates:
+    
+    ```typescript
+    class VersionManager {
+      async rollback() {
+        const previousVersion = this.getPreviousVersion();
+        await this.restoreBackup(previousVersion);
+        window.location.reload();
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Update History">
+    Track update history in IndexedDB:
+    
+    ```typescript
+    interface UpdateRecord {
+      fromVersion: string;
+      toVersion: string;
+      timestamp: number;
+      success: boolean;
+    }
+    
+    await indexedDBManager.add(STORES.UPDATE_HISTORY, record);
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Debugging
+
+The VersionManager is globally accessible for debugging:
+
+```javascript
+// Check current version
+window.VersionManager.getVersion();
+// Returns: "1.0.31"
+
+// Check if update is pending
+window.VersionManager.hasPendingUpdate();
+// Returns: true or false
+
+// Force an update
+await window.VersionManager.forceUpdate();
+// Clears caches and reloads
+
+// Clear pending update flag
+window.VersionManager.clearPendingUpdate();
+```
+
+<Warning>
+These are debugging methods. Do not use in production code.
+</Warning>

@@ -1,0 +1,601 @@
+---
+title: Contributing Guide
+description: Development setup, workflows, and code standards for contributing to Time Capsule
+---
+
+## Development Setup
+
+### Prerequisites
+
+Before starting development, ensure you have the following installed:
+
+- **Node.js v20+** - JavaScript runtime
+- **npm v10+** - Package manager
+
+### Quick Start
+
+Get the project running locally in three simple steps:
+
+```bash
+git clone <your-fork>
+npm install
+npm run dev
+```
+
+The development server will start at `http://localhost:4321`.
+
+<Note>
+The project uses Astro with TypeScript. The dev server provides hot module replacement for fast development.
+</Note>
+
+## Pull Request Process
+
+### Before Submitting
+
+Run these checks before creating a pull request:
+
+<Steps>
+  <Step title="Format Code">
+    Run the formatter to ensure consistent code style:
+    ```bash
+    npm run format
+    ```
+  </Step>
+  
+  <Step title="Build Verification">
+    Verify the build completes successfully:
+    ```bash
+    npm run build
+    ```
+    This must pass without errors.
+  </Step>
+  
+  <Step title="Test Functionality">
+    Manually test your changes across different screen sizes:
+    - Desktop: Window management, drag & drop, right-click menus
+    - Mobile: Touch gestures, responsive layouts
+  </Step>
+  
+  <Step title="Lint Check">
+    Follow existing TypeScript patterns and strict typing requirements.
+  </Step>
+</Steps>
+
+### PR Requirements
+
+<CardGroup cols={2}>
+  <Card title="Documentation" icon="book">
+    Reference issue number if applicable
+    
+    Include clear description of changes
+  </Card>
+  
+  <Card title="Testing" icon="flask">
+    Test on desktop and mobile for UI changes
+    
+    Verify theme system if modifying styles
+  </Card>
+  
+  <Card title="Code Quality" icon="code">
+    Follow existing code patterns
+    
+    Maintain architecture consistency
+  </Card>
+  
+  <Card title="Build Status" icon="check">
+    Ensure build passes
+    
+    Fix any TypeScript errors
+  </Card>
+</CardGroup>
+
+### Review Process
+
+- **Automatic Deployment**: PRs merged to `main` deploy automatically
+- **Build Verification**: GitHub Actions validates builds
+- **Manual Testing**: UI/UX changes undergo manual review
+
+## Code Standards
+
+### TypeScript
+
+The project uses strict TypeScript configuration:
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler"
+  }
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Strict Typing">
+    - All variables must have explicit types
+    - No `any` types unless absolutely necessary
+    - Use existing interfaces and types from core systems
+  </Accordion>
+  
+  <Accordion title="Code Patterns">
+    - Follow patterns in `/src/scripts/`
+    - Use class-based architecture for core systems
+    - Implement proper error handling
+  </Accordion>
+  
+  <Accordion title="Import Standards">
+    - Use relative imports for local modules
+    - Import from utilities for shared functionality
+    - Lazy load features when possible
+  </Accordion>
+</AccordionGroup>
+
+### CSS
+
+<Tabs>
+  <Tab title="Variables">
+    Use existing CSS variables from `/public/css/base/variables.css`:
+    
+    ```css
+    .my-component {
+      background: var(--cde-bg-primary);
+      color: var(--cde-text-primary);
+      border: 1px solid var(--cde-border-color);
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Naming">
+    Follow BEM-like naming conventions:
+    
+    ```css
+    .component-name { }
+    .component-name__element { }
+    .component-name--modifier { }
+    ```
+  </Tab>
+  
+  <Tab title="Responsive">
+    Maintain responsive design principles:
+    
+    ```css
+    @media (max-width: 768px) {
+      .component {
+        flex-direction: column;
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### File Organization
+
+The codebase follows a modular structure:
+
+```
+src/
+├── components/          # Astro UI components
+│   ├── common/         # Shared components
+│   ├── desktop/        # Desktop-specific components
+│   └── features/       # Feature islands
+├── scripts/
+│   ├── core/           # Core systems (VFS, WindowManager)
+│   ├── features/       # Business logic for features
+│   ├── utilities/      # Helper functions
+│   ├── shared/         # Shared functionality
+│   ├── ui/             # UI utilities
+│   └── workers/        # Web Workers
+└── data/               # Static data files
+```
+
+<Warning>
+Do not modify core system files without understanding the architecture. See [Architecture Overview](/technical/architecture) for details.
+</Warning>
+
+## Architecture Guidelines
+
+### Key Systems
+
+Refer to technical documentation for detailed architecture:
+
+<CardGroup cols={3}>
+  <Card title="Architecture" icon="sitemap" href="/technical/architecture">
+    System design and module patterns
+  </Card>
+  
+  <Card title="Storage" icon="database" href="/technical/storage">
+    IndexedDB and localStorage usage
+  </Card>
+  
+  <Card title="Version Updates" icon="arrows-rotate" href="/technical/version-updates">
+    Update system and migrations
+  </Card>
+</CardGroup>
+
+### Module Patterns
+
+Style modules must implement these methods:
+
+```typescript
+class MyStyleModule {
+  // Load settings from storage
+  async load(): Promise<void> {
+    const settings = await settingsManager.getSection('mymodule');
+    this.applySettings(settings);
+  }
+
+  // Apply changes to the UI
+  apply(settings: MySettings): void {
+    // Update CSS variables or DOM
+  }
+
+  // Sync UI controls with current state
+  syncUI(): void {
+    // Update checkboxes, sliders, etc.
+  }
+
+  // Handle setting changes
+  update(key: string, value: any): void {
+    settingsManager.setSection('mymodule', { [key]: value });
+    this.apply({ [key]: value });
+  }
+}
+```
+
+<Info>
+See existing style modules in `/src/scripts/features/style/` for reference implementations.
+</Info>
+
+### Performance Considerations
+
+<AccordionGroup>
+  <Accordion title="Web Workers">
+    Use Web Workers for heavy operations:
+    
+    ```typescript
+    // Example: XPM parser (xpmparser.ts)
+    const worker = new Worker('/workers/xpm-worker.js');
+    worker.postMessage({ type: 'parse', data: xpmData });
+    worker.onmessage = (e) => {
+      // Handle result
+    };
+    ```
+  </Accordion>
+  
+  <Accordion title="Lifecycle Management">
+    Implement proper cleanup:
+    
+    ```typescript
+    class MyFeature {
+      private listeners: Function[] = [];
+
+      init(): void {
+        const handler = () => { /* ... */ };
+        window.addEventListener('resize', handler);
+        this.listeners.push(() => {
+          window.removeEventListener('resize', handler);
+        });
+      }
+
+      destroy(): void {
+        this.listeners.forEach(cleanup => cleanup());
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Caching">
+    Cache expensive operations:
+    
+    ```typescript
+    class ThemeManager {
+      private cache = new Map<string, string>();
+
+      getProcessedTheme(id: string): string {
+        if (this.cache.has(id)) {
+          return this.cache.get(id)!;
+        }
+        const result = this.processTheme(id);
+        this.cache.set(id, result);
+        return result;
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Common Tasks
+
+### Adding a New Style Module
+
+<Steps>
+  <Step title="Create Module File">
+    Create your module in `/src/scripts/features/style/`:
+    
+    ```typescript
+    // my-style-module.ts
+    export class MyStyleModule {
+      async load() { /* ... */ }
+      apply(settings) { /* ... */ }
+      syncUI() { /* ... */ }
+      update(key, value) { /* ... */ }
+    }
+    ```
+  </Step>
+  
+  <Step title="Register in StyleManager">
+    Add to StyleManager constructor:
+    
+    ```typescript
+    // style-manager.ts
+    import { MyStyleModule } from './my-style-module';
+
+    constructor() {
+      this.modules.set('mymodule', new MyStyleModule());
+    }
+    ```
+  </Step>
+  
+  <Step title="Add UI Component">
+    Create component in `/src/components/features/style/`:
+    
+    ```astro
+    ---
+    // MyStyleControls.astro
+    ---
+    <div class="style-control">
+      <label>My Setting</label>
+      <input type="checkbox" id="my-setting" />
+    </div>
+    ```
+  </Step>
+  
+  <Step title="Add CSS Styles">
+    Add styles in `/public/css/components/style-manager/`:
+    
+    ```css
+    .style-control {
+      padding: 10px;
+      border-bottom: 1px solid var(--cde-border-color);
+    }
+    ```
+  </Step>
+</Steps>
+
+### Adding a Desktop Icon
+
+<Steps>
+  <Step title="Add Icon File">
+    Place icon in `/public/icons/` (preferably SVG or PNG).
+  </Step>
+  
+  <Step title="Update SYSTEM_ICONS">
+    Edit `desktop.ts`:
+    
+    ```typescript
+    const SYSTEM_ICONS = [
+      // ... existing icons
+      {
+        id: 'my-app',
+        label: 'My App',
+        icon: '/icons/my-app.svg',
+        action: 'launch-my-app'
+      }
+    ];
+    ```
+  </Step>
+  
+  <Step title="Implement Click Handler">
+    Add handler if needed:
+    
+    ```typescript
+    if (action === 'launch-my-app') {
+      const myApp = await lazyLoader.load('myapp');
+      myApp.launch();
+    }
+    ```
+  </Step>
+</Steps>
+
+### Modifying Themes
+
+<Warning>
+XPM backdrops use palette colors. Clear cache on palette changes to ensure proper rendering.
+</Warning>
+
+<Steps>
+  <Step title="Test with Multiple Palettes">
+    Ensure your theme works with different color palettes from `/src/data/cde_palettes.json`.
+  </Step>
+  
+  <Step title="Handle Backdrop Rendering">
+    XPM files are parsed with current palette colors:
+    
+    ```typescript
+    // When palette changes
+    themeManager.clearBackdropCache();
+    themeManager.reapplyBackdrop();
+    ```
+  </Step>
+  
+  <Step title="Test URL Sharing">
+    Verify theme state is preserved in URL parameters for sharing.
+  </Step>
+</Steps>
+
+## Testing
+
+### Manual Testing Checklist
+
+<AccordionGroup>
+  <Accordion title="Desktop Functionality">
+    - Window management (open, close, minimize, maximize)
+    - Drag and drop operations
+    - Right-click context menus
+    - Keyboard shortcuts
+    - Multi-window interactions
+  </Accordion>
+  
+  <Accordion title="Mobile Functionality">
+    - Touch gestures (tap, swipe, pinch)
+    - Responsive layouts
+    - Mobile menu navigation
+    - Virtual keyboard handling
+  </Accordion>
+  
+  <Accordion title="Theme System">
+    - Palette changes apply correctly
+    - Backdrop rendering works
+    - Theme state persists
+    - URL sharing preserves theme
+    - Cache clears on palette change
+  </Accordion>
+</AccordionGroup>
+
+### Build Verification
+
+Run these commands to verify your changes:
+
+```bash
+# Format code
+npm run format
+
+# Build project (must pass)
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+<Info>
+The build process uses Astro for static site generation and Vite for bundling. TypeScript compilation happens during build.
+</Info>
+
+## Documentation
+
+For detailed information about the system architecture and features:
+
+<CardGroup cols={2}>
+  <Card title="User Guide" icon="book-open" href="/user-guide">
+    End-user documentation and tutorials
+  </Card>
+  
+  <Card title="Technical Docs" icon="code" href="/technical">
+    System architecture and implementation
+  </Card>
+</CardGroup>
+
+### Documentation Standards
+
+<Tabs>
+  <Tab title="Language">
+    - Use clear, concise English
+    - Avoid unnecessary jargon
+    - Define technical terms when first used
+    - Write for both beginners and experts
+  </Tab>
+  
+  <Tab title="Formatting">
+    - Use standard Markdown
+    - Include code examples for technical sections
+    - Add inline comments to complex code
+    - Use consistent heading levels
+  </Tab>
+  
+  <Tab title="Visuals">
+    - Add screenshots for UI changes when possible
+    - Use diagrams for architecture explanations
+    - Include before/after comparisons
+  </Tab>
+  
+  <Tab title="Completeness">
+    - Document all new features in User Guide
+    - Add technical details to Technical Docs
+    - Include TypeScript types and interfaces
+    - Provide usage examples
+  </Tab>
+</Tabs>
+
+### Contributing to Documentation
+
+Found an error or want to improve the documentation?
+
+<Steps>
+  <Step title="Identify">
+    Find the relevant `.md` file in the `docs/` directory.
+  </Step>
+  
+  <Step title="Edit">
+    Make your changes, ensuring they follow the standards above.
+  </Step>
+  
+  <Step title="Verify">
+    Check that all links work and formatting is correct.
+  </Step>
+  
+  <Step title="Submit PR">
+    Submit a pull request with a description of the documentation improvements.
+  </Step>
+</Steps>
+
+<Note>
+For major documentation changes, please open an issue first to discuss the structure.
+</Note>
+
+## Issues and Discussions
+
+<CardGroup cols={3}>
+  <Card title="Bug Reports" icon="bug">
+    Use GitHub Issues with:
+    - Clear reproduction steps
+    - Expected vs actual behavior
+    - Environment details
+    - Screenshots if applicable
+  </Card>
+  
+  <Card title="Feature Requests" icon="lightbulb">
+    Propose in GitHub Discussions:
+    - Describe the use case
+    - Explain expected behavior
+    - Consider implementation impact
+  </Card>
+  
+  <Card title="Questions" icon="question">
+    Before asking:
+    - Check existing documentation
+    - Search closed issues
+    - Review architecture docs
+  </Card>
+</CardGroup>
+
+## Build Information
+
+<Info>
+Built with TypeScript, Astro, and authentic CDE design principles. Current version: **1.0.31**
+</Info>
+
+### Project Dependencies
+
+```json
+{
+  "dependencies": {
+    "astro": "^5.18.0",
+    "marked": "^17.0.3"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1"
+  }
+}
+```
+
+### Available Scripts
+
+| Script | Command | Description |
+|--------|---------|-------------|
+| Dev | `npm run dev` | Start development server |
+| Build | `npm run build` | Build for production |
+| Preview | `npm run preview` | Preview production build |
+| Format | `npm run format` | Format code with Prettier |

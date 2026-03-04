@@ -1,0 +1,172 @@
+---
+title: Introduction
+description: Discover Time Capsule - a Progressive Web App that recreates the 1990s Unix CDE desktop experience entirely in your browser
+---
+
+# Introduction to Time Capsule
+
+<Note>
+You're not visiting a website. You just logged into a Unix workstation.
+</Note>
+
+Time Capsule is a faithful recreation of the **Unix Common Desktop Environment (CDE)** - the iconic desktop that powered workstations in the 1990s. Built as a Progressive Web App, it runs entirely in your browser with authentic visuals, behavior, and functionality.
+
+## What is Time Capsule?
+
+There was a time when desktops were heavy, monitors were beige, and opening a terminal felt powerful. Time Capsule brings that experience back - not as screenshots or mockups, but as a real, interactive desktop environment.
+
+This is a complete recreation of the Unix CDE experience using modern web technologies. Every pixel, every color palette, every backdrop is authentic to the original system that ran on Sun Solaris, HP-UX, and IBM AIX workstations.
+
+<CardGroup cols={2}>
+  <Card title="Try it live" icon="globe" href="https://debian.com.mx">
+    Experience Time Capsule in action
+  </Card>
+  <Card title="Quickstart guide" icon="rocket" href="/quickstart">
+    Get started in 5 minutes
+  </Card>
+</CardGroup>
+
+## Key features
+
+### Authentic theming system
+
+Time Capsule includes 76 authentic Motif color palettes and 168 original XPM backdrops from the 1990s. Every palette transforms your entire desktop - from window borders to buttons to the front panel.
+
+**Popular palettes:**
+- **Platinum** - Classic gray (the default CDE look)
+- **Broica** - Warm browns and earth tones
+- **Alpine** - Cool blues for a crisp appearance
+- **Midnight** - Dark theme for low-light environments
+- **Coalmine** - Very dark with high contrast
+
+**Original backdrops:**
+- **CircuitBoards** - Dithered tech patterns
+- **BrokenIce** - Crystalline textures
+- **Afternoon** - Warm geometric designs
+- **Carpet** - Textile-inspired patterns
+- **Arabesca** - Ornate decorative motifs
+
+You can customize your theme and share it as a link. Your complete setup - colors, backdrop, fonts - can be exported and loaded by anyone instantly.
+
+### Full-featured applications
+
+<AccordionGroup>
+  <Accordion title="XEmacs text editor">
+    Real Emacs keybindings including `C-x C-s` (save), `M-x` (execute command), `C-k` (kill line), and `C-y` (yank). Features an interactive minibuffer, authentic GNU splash screen, and full text editing capabilities. Edit files in your virtual filesystem with the power of Emacs.
+  </Accordion>
+  
+  <Accordion title="Terminal Lab">
+    22 interactive Unix/Linux lessons that teach you by doing. Learn essential commands from `ls` to pipes, with instant feedback. Switch between tutorial mode (guided lessons) and free mode (full bash-like environment) with tab completion.
+  </Accordion>
+  
+  <Accordion title="Virtual filesystem">
+    A complete in-browser filesystem with O(1) path resolution. Create files, make directories, copy, move, and delete with full Unix-like path handling. All data persists using IndexedDB. Navigate with the File Manager or command line.
+  </Accordion>
+  
+  <Accordion title="Netscape Navigator">
+    Experience web browsing from 1994. Authentic interface with retro compatibility for exploring internal documentation and curated 90s-style content. Complete with navigation buttons, address bar, and bookmarks.
+  </Accordion>
+  
+  <Accordion title="Man page viewer">
+    28 essential Unix manual pages with authentic formatting and clickable examples. Browse documentation for commands like `ls`, `grep`, `find`, `chmod`, and more. Learn Unix the traditional way.
+  </Accordion>
+</AccordionGroup>
+
+### System features
+
+<CardGroup cols={2}>
+  <Card title="Boot sequence" icon="power-off">
+    Watch the system initialize with authentic Debian boot messages, just like a real Unix workstation
+  </Card>
+  <Card title="4 virtual workspaces" icon="th">
+    Organize your work across four separate desktops. Switch with `Ctrl+Alt+1-4`
+  </Card>
+  <Card title="Window management" icon="window-maximize">
+    Drag, resize, minimize, and maximize windows with smooth interactions and CDE-style controls
+  </Card>
+  <Card title="Keyboard shortcuts" icon="keyboard">
+    20+ shortcuts for power users. Navigate and control everything without touching the mouse
+  </Card>
+</CardGroup>
+
+### Progressive Web App
+
+Time Capsule isn't just a website - it's a full Progressive Web App that can be installed on any device:
+
+- **Offline access** - Works without internet after initial load
+- **Native experience** - Runs in its own window without browser UI
+- **Desktop integration** - Appears in your app launcher and taskbar
+- **Automatic updates** - Always stays current with new features
+- **Cross-platform** - Desktop, tablet, and mobile with touch gestures
+
+<Tip>
+Click the "Install PWA" icon on the desktop to install Time Capsule as a native app. See the [PWA installation guide](/pwa-installation) for details.
+</Tip>
+
+## Why Time Capsule exists
+
+The goal wasn't pixel perfection - it was experience authenticity. This project preserves computing history in an interactive, accessible format. You don't need to find old hardware or install virtualization software. Just open a browser.
+
+Time Capsule is built for:
+- **Nostalgia enthusiasts** who remember CDE workstations
+- **Unix learners** who want hands-on command line practice
+- **Design historians** studying 1990s interface design
+- **Curious developers** interested in retro computing
+
+## Technical foundation
+
+Time Capsule is built with modern web technologies:
+
+```typescript
+// Built on Astro's islands architecture
+// Each application hydrates on demand
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  // Static HTML shell with interactive islands
+  integrations: [/* TypeScript, CSS, IndexedDB */]
+});
+```
+
+**Architecture highlights:**
+- **Astro** for static HTML with interactive islands
+- **TypeScript** for type-safe application logic
+- **IndexedDB** for persistent storage and virtual filesystem
+- **Web Workers** for XPM image parsing and background tasks
+- **Service Workers** for offline caching and PWA capabilities
+- **Web Audio API** for authentic system beeps
+
+The source code demonstrates event-driven communication, lazy loading, virtual scrolling for performance, and progressive enhancement throughout.
+
+## Works everywhere
+
+Desktop feels native. Mobile adapts with touch gestures. Keyboard shortcuts still work. The experience behaves like a real system - not a responsive layout pretending to be one.
+
+<Info>
+Time Capsule is fully responsive. On mobile, use touch gestures to drag windows, tap to click, and swipe to navigate. On desktop, use keyboard shortcuts for maximum efficiency.
+</Info>
+
+## Open source
+
+Time Capsule is open source and welcomes contributions:
+
+- Add new color palettes or backdrops
+- Improve accessibility features
+- Fix bugs and optimize performance
+- Create new applications
+- Enhance documentation
+
+The project is actively maintained on GitHub with a friendly community in discussions.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Launch your first application in 5 minutes
+  </Card>
+  <Card title="PWA installation" icon="download" href="/pwa-installation">
+    Install as a native app on any device
+  </Card>
+</CardGroup>
+
+Ready to experience 1990s Unix computing? [Try Time Capsule now](https://debian.com.mx) or continue with the quickstart guide to learn the essential features.

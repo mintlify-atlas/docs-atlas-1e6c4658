@@ -1,0 +1,516 @@
+---
+title: PWA installation
+description: Install Time Capsule as a Progressive Web App for native app experience, offline access, and seamless desktop integration
+---
+
+# Progressive Web App installation
+
+Time Capsule can be installed as a Progressive Web App (PWA) on any device. Once installed, it runs like a native application with offline capabilities, no browser UI, and full desktop integration.
+
+## Why install as PWA?
+
+Installing Time Capsule as a PWA provides significant benefits over running it in a browser tab:
+
+<CardGroup cols={2}>
+  <Card title="Offline access" icon="wifi-slash">
+    Works completely offline after initial installation. All features remain available without internet
+  </Card>
+  <Card title="Native experience" icon="window-maximize">
+    Runs in its own window without browser tabs, address bar, or bookmarks toolbar
+  </Card>
+  <Card title="Desktop integration" icon="desktop">
+    Appears in your application launcher, taskbar, and dock alongside native apps
+  </Card>
+  <Card title="Automatic updates" icon="arrows-rotate">
+    Service worker automatically downloads updates in the background
+  </Card>
+  <Card title="Better performance" icon="gauge-high">
+    Static assets cached locally for instant loading and smooth operation
+  </Card>
+  <Card title="No keyboard conflicts" icon="keyboard">
+    Avoids browser shortcut conflicts - `Ctrl+W` cuts text instead of closing tabs
+  </Card>
+</CardGroup>
+
+## Installation methods
+
+### Method 1: Desktop icon (recommended)
+
+Time Capsule displays an installation icon on the desktop when running in a PWA-capable browser.
+
+<Steps>
+  <Step title="Wait for boot sequence">
+    Open [https://debian.com.mx](https://debian.com.mx) and wait for the system to finish booting. The desktop will appear after the Debian initialization messages complete.
+  </Step>
+  
+  <Step title="Locate the install icon">
+    Look for the "Install PWA" icon on the desktop. It displays a floppy disk image and appears in the top-left corner of the desktop area.
+    
+    <Info>
+    The icon is created by the PWA installer utility at `src/scripts/utilities/pwa-installer.ts` which listens for the browser's `beforeinstallprompt` event.
+    </Info>
+  </Step>
+  
+  <Step title="Double-click to install">
+    Double-click the "Install PWA" icon. Your browser will display a native installation prompt.
+    
+    ```typescript
+    // The installation triggers this code
+    export async function installPWA(): Promise<void> {
+      await deferredInstallPrompt.prompt();
+      const choiceResult = await deferredInstallPrompt.userChoice;
+      
+      if (choiceResult.outcome === 'accepted') {
+        console.log('[PWA] User accepted the install prompt');
+      }
+    }
+    ```
+  </Step>
+  
+  <Step title="Confirm installation">
+    Click "Install" in your browser's dialog. The application will be installed and the desktop icon will automatically disappear.
+  </Step>
+  
+  <Step title="Launch the app">
+    Find "Time Capsule" or "Debian CDE" in your application launcher and launch it like any native app.
+  </Step>
+</Steps>
+
+<Warning>
+If the icon doesn't appear, your browser may not support PWA installation, or Time Capsule may already be installed. Try Method 2 below.
+</Warning>
+
+### Method 2: Browser menu
+
+Most modern browsers offer PWA installation through their menu systems:
+
+<Tabs>
+  <Tab title="Chrome/Edge">
+    <Steps>
+      <Step title="Look for the install icon">
+        Check the address bar for a small install icon (⊕ or computer icon) on the right side.
+      </Step>
+      <Step title="Click to install">
+        Click the icon and select "Install Time Capsule" from the popup.
+      </Step>
+      <Step title="Alternative: Use menu">
+        If no icon appears, click the three-dot menu (⋮) → "Install Time Capsule" or "Apps" → "Install this site as an app".
+      </Step>
+      <Step title="Confirm installation">
+        Click "Install" in the dialog that appears.
+      </Step>
+    </Steps>
+  </Tab>
+  
+  <Tab title="Firefox">
+    <Steps>
+      <Step title="Open menu">
+        Click the three-line menu (☰) in the top-right corner.
+      </Step>
+      <Step title="Find install option">
+        Look for "Install" or "Add to Home Screen" option (availability depends on Firefox version).
+      </Step>
+      <Step title="Alternative: About dialog">
+        Firefox may show installation prompts in the address bar or as notifications.
+      </Step>
+    </Steps>
+    
+    <Info>
+    Firefox PWA support varies by platform. Desktop support is limited on some operating systems.
+    </Info>
+  </Tab>
+  
+  <Tab title="Safari (iOS/iPadOS)">
+    <Steps>
+      <Step title="Open share menu">
+        Tap the Share button (square with arrow pointing up) in Safari's toolbar.
+      </Step>
+      <Step title="Add to home screen">
+        Scroll and tap "Add to Home Screen" from the share sheet.
+      </Step>
+      <Step title="Customize name">
+        Edit the name if desired (default is "Time Capsule"), then tap "Add".
+      </Step>
+      <Step title="Launch from home">
+        The Time Capsule icon appears on your home screen. Tap to launch.
+      </Step>
+    </Steps>
+  </Tab>
+  
+  <Tab title="Safari (macOS)">
+    <Steps>
+      <Step title="Open File menu">
+        Click "File" in Safari's menu bar.
+      </Step>
+      <Step title="Add to Dock">
+        Select "Add to Dock" to create a standalone app icon.
+      </Step>
+      <Step title="Launch from Dock">
+        Click the Time Capsule icon in your Dock to launch.
+      </Step>
+    </Steps>
+    
+    <Warning>
+    macOS Safari's PWA implementation is limited. For full features, consider using Chrome or Edge.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Technical requirements
+
+To install and run Time Capsule as a PWA, you need:
+
+<CardGroup cols={2}>
+  <Card title="Modern browser" icon="globe">
+    Chrome 73+, Edge 79+, Safari 11.1+, or Firefox 85+ (with limited support)
+  </Card>
+  <Card title="HTTPS connection" icon="lock">
+    Required for service workers - automatically provided by debian.com.mx
+  </Card>
+  <Card title="Storage space" icon="hard-drive">
+    ~15-20 MB for caching static assets, palettes, and backdrops
+  </Card>
+  <Card title="JavaScript enabled" icon="code">
+    Required for PWA functionality and interactive features
+  </Card>
+</CardGroup>
+
+## How it works
+
+Time Capsule's PWA implementation uses modern web APIs for a native-like experience:
+
+### Service worker
+
+The service worker (`public/sw.js`) handles caching and offline functionality:
+
+```javascript
+// Service worker caching strategy
+const STATIC_CACHE = `static-cache-${CACHE_VERSION}`;
+const PRECACHE_URLS = ['/', '/css/main.css', '/css/responsive.css'];
+
+// Navigation: network-first with cache fallback
+if (request.mode === 'navigate') {
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        // Cache the response
+        caches.open(STATIC_CACHE).then((cache) => 
+          cache.put(request, response.clone())
+        );
+        return response;
+      })
+      .catch(() => caches.match(request) || caches.match('/'))
+  );
+}
+
+// Static resources: cache-first strategy
+if (url.pathname.startsWith('/css/') || 
+    url.pathname.startsWith('/backdrops/') ||
+    url.pathname.startsWith('/palettes/')) {
+  event.respondWith(
+    caches.match(request) || fetch(request)
+  );
+}
+```
+
+### Web app manifest
+
+The manifest (`public/manifest.webmanifest`) defines app metadata:
+
+```json
+{
+  "name": "Time Capsule",
+  "short_name": "Debian CDE",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4d648d",
+  "theme_color": "#4d648d",
+  "description": "A modern Progressive Web App that brings 1990s Unix to any device",
+  "icons": [
+    {
+      "src": "/icons/system/Debian.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+### Offline capabilities
+
+Once installed, Time Capsule works completely offline:
+
+- **Static assets** - HTML, CSS, JavaScript cached by service worker
+- **Color palettes** - All 76 palettes cached locally
+- **Backdrops** - 168 XPM backdrops cached on demand
+- **Virtual filesystem** - Stored in IndexedDB, fully offline
+- **Application state** - Settings and preferences in localStorage
+
+<Info>
+The cache-first strategy for CSS and backdrops means these assets load instantly from local cache, falling back to network only if missing.
+</Info>
+
+## Verifying installation
+
+After installing, verify Time Capsule is running as a PWA:
+
+### Check display mode
+
+Time Capsule detects if it's running as an installed app:
+
+```typescript
+// Detection code in pwa-installer.ts
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  console.log('[PWA] Already running as installed app');
+  isInstallable = false;
+}
+```
+
+### Visual indicators
+
+When running as a PWA:
+- No browser address bar or navigation controls
+- Own window with system title bar
+- App icon in taskbar/dock
+- "Install PWA" desktop icon no longer appears
+
+### Browser tools
+
+Check installation in browser developer tools:
+
+1. Open DevTools (F12)
+2. Go to Application tab (Chrome/Edge) or Storage tab (Firefox)
+3. Check "Service Workers" section - should show "activated and running"
+4. Check "Cache Storage" - should list cached assets
+
+## Uninstalling the PWA
+
+To remove Time Capsule from your system:
+
+<Tabs>
+  <Tab title="Chrome/Edge">
+    <Steps>
+      <Step title="Open apps page">
+        Navigate to `chrome://apps` (Chrome) or `edge://apps` (Edge) in your browser
+      </Step>
+      <Step title="Find Time Capsule">
+        Locate the Time Capsule or Debian CDE app icon
+      </Step>
+      <Step title="Right-click to uninstall">
+        Right-click the icon and select "Uninstall" or "Remove from Chrome/Edge"
+      </Step>
+      <Step title="Confirm removal">
+        Click "Remove" in the confirmation dialog
+      </Step>
+    </Steps>
+    
+    <Info>
+    Uninstalling removes the app but preserves your data (files, settings) in browser storage. To completely remove all data, also clear site data from browser settings.
+    </Info>
+  </Tab>
+  
+  <Tab title="Firefox">
+    <Steps>
+      <Step title="Open application menu">
+        Go to your operating system's application menu or launcher
+      </Step>
+      <Step title="Find Time Capsule">
+        Locate the Time Capsule app
+      </Step>
+      <Step title="Uninstall">
+        Right-click and select uninstall (Linux) or remove from Applications folder (macOS)
+      </Step>
+    </Steps>
+  </Tab>
+  
+  <Tab title="iOS/iPadOS">
+    <Steps>
+      <Step title="Long-press icon">
+        Touch and hold the Time Capsule icon on your home screen
+      </Step>
+      <Step title="Enter edit mode">
+        Wait for the icons to jiggle and the X to appear
+      </Step>
+      <Step title="Remove">
+        Tap the X or "Remove App" → "Delete App"
+      </Step>
+    </Steps>
+  </Tab>
+  
+  <Tab title="macOS Safari">
+    <Steps>
+      <Step title="Remove from Dock">
+        Right-click the Time Capsule icon in your Dock
+      </Step>
+      <Step title="Options menu">
+        Select "Options" → "Remove from Dock"
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Install icon doesn't appear">
+    **Possible causes:**
+    - Browser doesn't support PWA installation
+    - Time Capsule is already installed
+    - Page not served over HTTPS (shouldn't happen on debian.com.mx)
+    - Browser extensions blocking installation prompts
+    
+    **Solutions:**
+    - Try Method 2 (browser menu installation)
+    - Check if the app is already installed
+    - Disable browser extensions temporarily
+    - Try a different browser (Chrome/Edge recommended)
+    - Refresh the page and wait for full boot completion
+  </Accordion>
+  
+  <Accordion title="Installation fails with error">
+    **Possible causes:**
+    - Insufficient storage space
+    - Browser cache corrupted
+    - Service worker registration failed
+    
+    **Solutions:**
+    - Free up disk space (need ~20 MB)
+    - Clear browser cache and site data
+    - Check browser console for specific errors
+    - Try incognito/private mode first
+    - Restart your browser
+  </Accordion>
+  
+  <Accordion title="App doesn't work offline">
+    **Possible causes:**
+    - Service worker not activated
+    - Cache not fully populated
+    - Browser cleared cache
+    
+    **Solutions:**
+    - Visit all sections while online first to populate cache
+    - Check service worker status in DevTools Application tab
+    - Reinstall the PWA to refresh cache
+    - Wait a few minutes after installation for background caching
+    
+    ```javascript
+    // Verify service worker in console
+    navigator.serviceWorker.getRegistration().then(reg => {
+      console.log('Service Worker:', reg.active.state);
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Keyboard shortcuts conflict with browser">
+    **Issue:**
+    Shortcuts like `Ctrl+W` (cut in XEmacs) close browser tabs instead.
+    
+    **Solution:**
+    This confirms you're NOT running as PWA. Install as PWA (standalone mode) to eliminate browser conflicts. In standalone mode, Time Capsule controls all keyboard shortcuts.
+  </Accordion>
+  
+  <Accordion title="Updates not appearing">
+    **How updates work:**
+    Service worker checks for updates automatically. When found, it downloads in background and activates on next launch.
+    
+    **Force update:**
+    - Close all Time Capsule windows/tabs
+    - Clear service worker: DevTools → Application → Service Workers → Unregister
+    - Reload the page
+    - New version will install
+    
+    <Info>
+    The service worker version is tied to `package.json` version number and updates automatically when changed.
+    </Info>
+  </Accordion>
+  
+  <Accordion title="PWA not appearing in app launcher">
+    **Platform-specific:**
+    - **Windows:** Check Start Menu under recently added
+    - **macOS:** Look in Applications folder or Launchpad
+    - **Linux:** Check application menu (varies by DE)
+    - **iOS/iPadOS:** Check all home screens
+    
+    **Alternative:**
+    Create a bookmark/shortcut to `https://debian.com.mx` and add it to your desktop or taskbar as a workaround.
+  </Accordion>
+</AccordionGroup>
+
+## Platform-specific notes
+
+### Windows
+
+- Best experience with Chrome or Edge
+- App appears in Start Menu under recently added
+- Can be pinned to taskbar
+- Window has native Windows title bar
+
+### macOS
+
+- Chrome/Edge recommended (Safari has limitations)
+- App appears in Applications folder
+- Can be added to Dock
+- Follows macOS window management conventions
+
+### Linux
+
+- Chrome/Chromium recommended
+- App integrates with desktop environment
+- Appears in application menu (GNOME, KDE, etc.)
+- Respects system theme for window decorations
+
+### iOS/iPadOS
+
+- Safari is the only option
+- Touch gestures work perfectly
+- Can be added to home screen
+- Runs in fullscreen when launched
+- Note: Limited offline capabilities due to Safari PWA restrictions
+
+### Android
+
+- Chrome recommended
+- Excellent PWA support
+- Add to home screen feature
+- Full offline functionality
+- Can use back button for navigation
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Install on all devices" icon="mobile">
+    Install on desktop for productivity and mobile for on-the-go access
+  </Card>
+  <Card title="Allow background updates" icon="cloud-arrow-down">
+    Keep Time Capsule in your app list for automatic updates
+  </Card>
+  <Card title="Use standalone mode" icon="window-restore">
+    Always launch from app icon, not browser bookmark
+  </Card>
+  <Card title="Cache content first" icon="database">
+    Explore all sections while online to cache everything
+  </Card>
+</CardGroup>
+
+## Next steps
+
+Now that Time Capsule is installed:
+
+<CardGroup cols={2}>
+  <Card title="Quickstart guide" icon="rocket" href="/quickstart">
+    Learn the essential features in 5 minutes
+  </Card>
+  <Card title="Keyboard shortcuts" icon="keyboard">
+    Master the 20+ shortcuts for power users
+  </Card>
+  <Card title="Terminal Lab" icon="terminal">
+    Complete all 22 Unix/Linux lessons
+  </Card>
+  <Card title="Customize themes" icon="palette">
+    Explore 76 palettes and 168 backdrops
+  </Card>
+</CardGroup>
+
+<Tip>
+For the best experience, install Time Capsule on both your desktop (for productivity) and mobile device (for showing friends). The offline support means it works everywhere!
+</Tip>

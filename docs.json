@@ -1,122 +1,84 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Time Capsule",
+  "theme": "aspen",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#5bafb2",
+    "light": "#272651",
+    "dark": "#d8d8d8"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "https://media.brand.dev/87f124fb-4d89-4f3a-836e-fff51cf5aa5c.png",
+  "logo": {
+    "light": "https://media.brand.dev/834388a6-c7ea-464f-aeeb-2924b1fca6f9.png",
+    "dark": "https://media.brand.dev/87f124fb-4d89-4f3a-836e-fff51cf5aa5c.png"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/victxrlarixs/debian-cde"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/victxrlarixs/debian-cde"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get Started",
             "pages": [
-              "index",
+              "introduction",
               "quickstart",
-              "development"
+              "pwa-installation"
             ]
           },
           {
-            "group": "Customization",
+            "group": "User Guide",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "user-guide/workspaces",
+              "user-guide/keyboard-shortcuts",
+              "user-guide/style-manager",
+              "user-guide/tips-and-tricks"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Applications",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "applications/xemacs",
+              "applications/terminal-lab",
+              "applications/file-manager",
+              "applications/netscape-navigator",
+              "applications/lynx-browser",
+              "applications/man-viewer"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Technical",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Architecture",
             "pages": [
-              "api-reference/introduction"
+              "technical/architecture",
+              "technical/storage",
+              "technical/window-manager",
+              "technical/virtual-filesystem"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Development",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "technical/contributing",
+              "technical/version-updates"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

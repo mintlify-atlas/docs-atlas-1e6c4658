@@ -1,0 +1,401 @@
+---
+title: Terminal Lab
+description: Interactive Unix tutorial with 22 guided lessons
+---
+
+The Terminal Lab is an interactive Unix command-line tutorial that teaches essential Unix commands through hands-on practice. With 22 progressive lessons covering everything from basic navigation to advanced system administration, it's the perfect way to learn Unix in a safe, guided environment.
+
+## Overview
+
+Terminal Lab features:
+
+- **22 Interactive Lessons**: From basics to advanced topics
+- **Guided Mode**: Type each command to advance
+- **Free Mode**: Explore Unix commands without restrictions
+- **Real Terminal Emulation**: Authentic bash-like experience
+- **Tab Completion**: File and command completion
+- **Command History**: Arrow keys to recall commands
+
+## Opening Terminal Lab
+
+Launch from the CDE panel or application menu. The lab opens with a welcome screen:
+
+```
++--------------------------------------------+
+|  DEBIAN CDE -- TERMINAL LABORATORY         |
++--------------------------------------------+
+Guided lessons: type each command to advance.
+Meta-commands: hint  skip  free  tutorial  clear
+```
+
+## The 22 Lessons
+
+### Lesson 1: Navigation Basics
+
+Learn fundamental navigation commands:
+
+- `whoami` - Display current username
+- `pwd` - Print working directory
+- `ls` - List files and directories
+- `ls -la` - List all files with details
+- `date` - Show system date and time
+
+### Lesson 2: Working with Directories
+
+Directory operations:
+
+- `cd Documents` - Change directory
+- `mkdir project_web` - Create new directory
+- `touch index.html style.css script.js` - Create files
+- Verify with `ls`
+
+### Lesson 3: File Operations
+
+Basic file manipulation:
+
+- `echo '<h1>Hello World</h1>' > index.html` - Write to file
+- `cat index.html` - Display file contents
+- `cp index.html index_backup.html` - Copy file
+- `mv style.css styles.css` - Rename file
+- `rm index_backup.html` - Delete file
+
+### Lesson 4: Permissions & Search
+
+File permissions and searching:
+
+- `chmod 755 index.html` - Change permissions
+- `ls -l index.html` - View permissions
+- `find . -name '*.html'` - Find files by pattern
+- `grep 'Hello' index.html` - Search text in files
+
+### Lesson 5: Processes & Resources
+
+System monitoring:
+
+- `ps aux | head -5` - List processes
+- `top -b -n 1 | head -5` - System monitor snapshot
+- `free -h` - Memory usage
+- `df -h` - Disk space usage
+
+### Lesson 6: Package Management & Networking
+
+System administration:
+
+- `apt update` - Update package list (as root)
+- `apt upgrade -y` - Upgrade packages
+- `ping -c 3 google.com` - Test connectivity
+- `curl -I https://debian.org` - Fetch HTTP headers
+
+### Lesson 7: Shell Tricks & History
+
+Shell productivity:
+
+- `history | tail -5` - Recent commands
+- `alias ll='ls -la'` - Create command alias
+- `cd ~` - Return to home
+- `clear` - Clear terminal screen
+
+### Lesson 8: System Information
+
+System details:
+
+- `uname -a` - Kernel and architecture
+- `hostname` - System hostname
+- `uptime` - System uptime and load
+- `who` - Logged-in users
+- `last -5` - Recent login history
+
+### Lessons 9-10: User Management
+
+User and group operations:
+
+- `useradd -m -s /bin/bash alice` - Create user
+- `passwd alice` - Set password
+- `groupadd developers` - Create group
+- `usermod -aG developers alice` - Add user to group
+- `id alice` - Show user IDs
+- `cat /etc/passwd | grep alice` - View user info
+- `sudo -l` - List sudo privileges
+
+### Lesson 11: Getting Help
+
+Documentation access:
+
+- `man ls` - Manual page for ls command
+- `whereis bash` - Locate binary and docs
+- `locate crontab` - Find files by name
+
+### Lesson 12: Archiving Files
+
+Compression and archives:
+
+- `tar -czf archive.tar.gz Documents/` - Create tarball
+- `tar -tzf archive.tar.gz` - List tarball contents
+- `gzip -l archive.tar.gz` - Compression info
+- `zip -r project.zip Documents/` - Create zip
+- `unzip -l project.zip` - List zip contents
+
+### Lesson 13: Process Signals
+
+Service and process management:
+
+- `systemctl status ssh` - Service status
+- `journalctl -n 5` - Recent log entries
+- `crontab -l` - List cron jobs
+- `crontab -e` - Edit cron jobs
+
+### Lesson 14: Network Interfaces
+
+Process control:
+
+- `ps aux | grep ssh` - Find SSH processes
+- `kill -9 1234` - Kill process by PID
+- `pkill -f sshd` - Kill by name
+- `top -b -n 1 | grep 'Cpu(s)'` - CPU usage
+
+### Lesson 15: DNS & Remote Files
+
+Network configuration:
+
+- `ifconfig` - Network interfaces
+- `ip addr show` - Alternative network info
+- `ss -tuln` - Listening ports
+- `traceroute -m 3 google.com` - Trace route
+
+### Lesson 16: Disk & Filesystem
+
+DNS and downloads:
+
+- `nslookup debian.org` - DNS lookup
+- `dig debian.org` - Detailed DNS query
+- `wget -O- https://httpbin.org/ip` - Download file
+
+### Lessons 17-18: Text Processing
+
+Text manipulation tools:
+
+- `head -3 index.html` - First 3 lines
+- `tail -2 script.js` - Last 2 lines
+- `wc -l index.html` - Count lines
+- `sort names.txt | uniq -c` - Count unique lines
+- `cut -d: -f1 /etc/passwd` - Extract fields
+- `sed 's/Hello/Hi/' index.html` - Text replacement
+- `awk -F: '{print $1}' /etc/passwd` - Process columns
+- `tr '[:lower:]' '[:upper:]' < index.html` - Case conversion
+
+### Lesson 19: Environment Variables
+
+Shell environment:
+
+- `env | head -3` - List variables
+- `export MY_VAR='Hello'` - Set variable
+- `echo $MY_VAR` - Print variable
+- `set | head -3` - All shell variables
+
+### Lesson 20: Symbolic Links & File Info
+
+Links and file inspection:
+
+- `ln -s /path/to/file link_name` - Create symlink
+- `ls -l link_name` - View symlink details
+- `readlink link_name` - Show symlink target
+- `file index.html` - Determine file type
+
+### Lesson 21: Advanced Permissions (ACL)
+
+Access control lists:
+
+- `chown alice:developers file.txt` - Change owner
+- `setfacl -m u:user:rw file.txt` - Set ACL
+- `getfacl file.txt` - View ACL entries
+
+### Lesson 22: Utilities & Job Control
+
+Final advanced topics combining previous lessons.
+
+## Free Mode
+
+### Switching to Free Mode
+
+Type `free` or click the "Free Mode" button to explore Unix commands without guidance:
+
+```
+[FREE MODE] Type any command. Type "tutorial" to return to guided mode or "help".
+```
+
+### Available Commands in Free Mode
+
+**File Operations**:
+- `ls`, `cd`, `pwd`, `cat`, `mkdir`, `touch`, `rm`
+
+**System Information**:
+- `whoami`, `hostname`, `uname`, `date`
+
+**Text Processing**:
+- `echo`, `grep`, `head`, `tail`, `wc`
+
+**Process Management**:
+- `history`, `clear`
+
+**Environment**:
+- `alias`, `unalias`, `export`, `env`
+
+**Applications**:
+- `lynx [url]` - Open Lynx browser
+- `man [command]` - Open man page viewer
+
+### Bash Features in Free Mode
+
+**Pipes**: Chain commands together
+```bash
+cat file.txt | grep hello | wc -l
+```
+
+**Variables**: Use environment variables
+```bash
+echo $HOME
+echo $USER
+export MY_VAR="test"
+```
+
+**Wildcards**: Pattern matching
+```bash
+ls *.txt
+rm test*.log
+```
+
+**Aliases**: Create shortcuts
+```bash
+alias ll="ls -la"
+alias ..="cd .."
+```
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+C` | Cancel current input |
+| `Ctrl+L` | Clear screen |
+| `Ctrl+U` | Clear current line |
+| `Ctrl+A` | Move to start of line |
+| `Ctrl+E` | Move to end of line |
+| `↑` / `↓` | Browse command history |
+| `Tab` | Auto-complete commands/files |
+
+## Tab Completion
+
+### Command Completion
+
+In guided mode:
+```bash
+who<Tab>  →  whoami
+```
+
+In free mode, completes from all available commands.
+
+### File Completion
+
+When typing file paths:
+```bash
+cat in<Tab>  →  cat index.html
+cd Doc<Tab>  →  cd Documents/
+```
+
+If multiple matches exist, press Tab again to see options:
+```
+index.html  index_backup.html
+```
+
+## Meta-Commands
+
+These special commands work in both modes:
+
+| Command | Action |
+|---------|--------|
+| `hint` | Show the expected command (guided mode) |
+| `skip` | Skip current step (guided mode) |
+| `free` | Toggle free mode |
+| `tutorial` | Return to guided mode |
+| `clear` | Clear terminal screen |
+
+## Progress Tracking
+
+The top bar shows:
+- Current lesson number and title
+- Progress bar (percentage complete)
+- "LESSON 5 / 22 — Processes & Resources"
+
+## Integration with Other Apps
+
+### Launching Applications
+
+From Terminal Lab in free mode:
+
+**Lynx Browser**:
+```bash
+lynx
+lynx gnu.org
+```
+
+**Man Pages**:
+```bash
+man ls
+man grep
+man
+```
+
+### Virtual Filesystem
+
+All file operations use the Time Capsule VFS:
+- Changes persist across sessions
+- Integrated with File Manager
+- Real file creation, modification, deletion
+
+## Tips and Tricks
+
+<AccordionGroup>
+  <Accordion title="Getting Unstuck">
+    If you're stuck on a command:
+    
+    1. Type `hint` to see the expected command
+    2. Type `skip` to move to the next step
+    3. Use Tab completion to help with typing
+    4. Type `free` to experiment without restrictions
+  </Accordion>
+
+  <Accordion title="Learning Strategy">
+    For best results:
+    
+    - Type each command manually (no copy-paste)
+    - Read the output explanations
+    - Experiment in free mode after completing lessons
+    - Use `man` command to learn more about each tool
+  </Accordion>
+
+  <Accordion title="Command History">
+    Navigate previous commands:
+    
+    - Press `↑` to recall earlier commands
+    - Press `↓` to move forward in history
+    - Edit recalled commands before running
+    - History persists within the session
+  </Accordion>
+
+  <Accordion title="Realistic Output">
+    The Terminal Lab provides authentic Unix output:
+    
+    - Real file listings from VFS
+    - Accurate command syntax
+    - Actual error messages
+    - Authentic directory structure
+  </Accordion>
+</AccordionGroup>
+
+## Source Code
+
+Terminal Lab is implemented in:
+- `/src/scripts/features/lab.ts`: Core tutorial engine (771 lines)
+- `/src/data/tutorial.json`: 22 lessons with 100+ steps
+- Full bash-like command map with pipes, variables, wildcards
+- Tab completion for commands and files
+- Command history with arrow key navigation

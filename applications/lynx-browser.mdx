@@ -1,0 +1,406 @@
+---
+title: Lynx Browser
+description: Text-based web browser with keyboard navigation
+---
+
+Lynx is a legendary text-based web browser that predates the graphical web. Time Capsule's Lynx implementation provides an authentic terminal-style browsing experience, complete with keyboard navigation, numbered links, and the ability to browse both internal pages and external websites as plain text.
+
+## Features
+
+- **Text-Only Display**: No images, no CSS, pure content
+- **Keyboard Navigation**: Full keyboard control
+- **Numbered Links**: Jump directly to links by number
+- **Internal Pages**: Curated Lynx-formatted content
+- **External Browsing**: Fetch and render modern websites as text
+- **History**: Browse previous pages
+- **Bookmarks**: Save frequently visited pages
+- **Search**: Find text on current page
+
+## Opening Lynx
+
+Launch from:
+- CDE panel application menu
+- Terminal Lab: Type `lynx` or `lynx [url]`
+- Man Viewer integration
+
+Lynx opens to the About page (`about:lynx`).
+
+## The Lynx Interface
+
+### Screen Layout
+
+```
+┌─────────────────────────────────────────┐
+│ [URL]                                   │
+│                                         │
+│ [1]Link One  [2]Link Two               │
+│                                         │
+│ Page content appears here as plain      │
+│ text. Links are numbered and can be     │
+│ selected with keyboard.                 │
+│                                         │
+│ Selected link highlighted: [3]Click     │
+│                                         │
+└─────────────────────────────────────────┘
+│ Status: Document: Done                  │
+└─────────────────────────────────────────┘
+│ URL to open:                            │
+└─────────────────────────────────────────┘
+```
+
+- **Top**: Current URL in white
+- **Content Area**: Page text with numbered links
+- **Selected Link**: Highlighted in color
+- **Status Bar**: Loading status and messages
+- **Input Line**: Appears for prompts (hidden otherwise)
+
+## Keyboard Navigation
+
+### Link Navigation
+
+| Key | Action |
+|-----|--------|
+| `↓` or `j` | Select next link |
+| `↑` or `k` | Select previous link |
+| `Enter` or `→` | Follow selected link |
+| `0-9` | Jump directly to numbered link |
+
+### Page Navigation
+
+| Key | Action |
+|-----|--------|
+| `←` or `Backspace` | Go back to previous page |
+| `g` | Open location prompt |
+| `m` | Go to main/home page |
+
+### Special Commands
+
+| Key | Action |
+|-----|--------|
+| `q` | Quit Lynx (prompts for confirmation) |
+| `h` or `?` | Show help page |
+| `/` | Search in current page |
+| `v` | View bookmarks |
+| `o` | Options (opens lynx://options) |
+| `p` | Print options (placeholder) |
+
+### History & Bookmarks
+
+| Key | Action |
+|-----|--------|
+| `Delete` | View history page |
+| `v` | View bookmarks |
+| `Backspace` | Go back one page |
+
+## Navigating to Pages
+
+### Open Location (g)
+
+Press `g` to open a URL:
+
+1. Type URL or search term
+2. Press `Enter` to load
+3. Press `Escape` to cancel
+
+Examples:
+```
+about:lynx           → Internal Lynx page
+gnu.org              → GNU website (text version)
+debian.org           → Debian site
+linux tutorials      → (Opens as URL if formatted)
+```
+
+### Default Protocol
+
+Lynx adds `https://` automatically:
+```
+gnu.org  →  https://gnu.org
+```
+
+## Internal Pages
+
+Lynx includes curated text-only pages:
+
+### about:lynx
+Welcome page with Lynx introduction and basic instructions.
+
+### lynx://help
+Keyboard shortcuts and navigation guide.
+
+### lynx://options
+Configuration and preferences (placeholder).
+
+### lynx://bookmarks
+List of saved bookmarks with numbered links.
+
+### lynx://history
+Recent browsing history in authentic Lynx format.
+
+## External Websites
+
+Lynx can fetch and render modern websites as text.
+
+### How It Works
+
+1. Enter URL: `gnu.org`
+2. Lynx fetches HTML
+3. Converts to plain text:
+   - Strips images, CSS, JavaScript
+   - Extracts text content
+   - Numbers all links
+   - Shows images as `[IMAGE: alt text]`
+4. Displays as navigable text page
+
+### Link Numbering
+
+External pages get automatic link numbers:
+```
+[1]Home  [2]About  [3]Software  [4]Documentation
+
+The GNU Operating System
+
+[5]What is GNU?  [6]Free Software  [7]Licenses
+
+GNU is a Unix-like operating system...
+```
+
+Press `1` to jump to "Home", `5` for "What is GNU?", etc.
+
+## Link Selection
+
+### Visual Highlighting
+
+The selected link appears in a different color:
+```
+Options: [1]Home  [2]About  [3]Contact
+                  ^^^^^^^^
+                  (selected)
+```
+
+### Selecting Links
+
+**Sequential**:
+- `↓` or `j`: Next link
+- `↑` or `k`: Previous link
+
+**Direct**:
+- Press link number: `3` jumps to link 3
+- Press `Enter` to follow
+
+### Following Links
+
+Once selected:
+- Press `Enter`
+- Or press `→` (right arrow)
+- Page loads immediately
+
+## History
+
+Press `Delete` to view browsing history.
+
+**History Page Format**:
+```
+            History Page (Lynx Version 2.8.9rel.1)
+
+You selected:
+
+ 10. [1]GNU Operating System
+     https://gnu.org
+
+  9. [2]Debian - The Universal Operating System
+     https://debian.org
+
+  8. [3]About Lynx
+     about:lynx
+```
+
+- Newest pages at top
+- Current page in **yellow**
+- Click numbers to revisit
+
+## Bookmarks
+
+Press `v` to view bookmarks.
+
+**Bookmark Format**:
+```
+  BOOKMARKS
+  =========
+
+  [1]about:lynx
+  [2]gnu.org
+  [3]debian.org
+
+  Enter number to visit, or press any other key to return
+```
+
+### Default Bookmarks
+
+- `about:lynx` - Lynx welcome
+- `gnu.org` - GNU Project
+- `debian.org` - Debian OS
+
+Bookmarks persist across sessions.
+
+## Search
+
+Press `/` to search in current page:
+
+1. Enter search term
+2. Press `Enter`
+3. Matches are highlighted
+4. Status shows: `Found: "term"`
+5. Or: `Not found: "term"`
+
+Search is case-insensitive.
+
+## Status Bar Messages
+
+**Loading**:
+```
+Connecting to gnu.org...
+```
+
+**Complete**:
+```
+Document: Done
+```
+
+**Error**:
+```
+Error: Could not load URL — https://invalid-site.com
+```
+
+**Actions**:
+```
+Opening manual page for ls...
+Lynx browser opened with URL: gnu.org
+Cancelled
+```
+
+## Help Page
+
+Press `h` or `?` to view help.
+
+**Help Content**:
+```
+MAN VIEWER HELP
+
+KEYBOARD COMMANDS
+
+  q           Quit Lynx
+  h, ?        Show this help
+  /           Search in current page
+  v           View bookmarks
+  Delete      View history
+  ←           Go back to previous page
+  ↑↓          Navigate links
+  g           Open location
+
+MOUSE COMMANDS
+
+  Click on [number] to follow link
+
+Press any key to return
+```
+
+## Quitting Lynx
+
+### Normal Quit
+
+Press `q`:
+```
+Are you sure you want to quit? (y/n)
+```
+
+Type `y` or `yes` to confirm, `n` to cancel.
+
+### Force Quit
+
+Close the window using the window manager close button.
+
+## Terminal Lab Integration
+
+From Terminal Lab (free mode):
+
+**Open Lynx**:
+```bash
+lynx
+```
+
+**Open with URL**:
+```bash
+lynx gnu.org
+lynx https://debian.org
+```
+
+Lynx opens in separate window.
+
+**Status message**:
+```
+Lynx browser opened
+Lynx browser opened with URL: gnu.org
+```
+
+## Tips and Tricks
+
+<AccordionGroup>
+  <Accordion title="Fast Link Navigation">
+    Jump to links quickly:
+    
+    - Press the link number directly (1-9)
+    - Use `j`/`k` for vi-style navigation
+    - Use arrow keys for familiar controls
+    
+    No need to press Enter before the number.
+  </Accordion>
+
+  <Accordion title="Reading Long Pages">
+    Navigate text-heavy pages:
+    
+    - Page Down: Scroll content area
+    - `j` repeatedly: Move through links
+    - Selected link auto-scrolls into view
+    - Search (`/`) to jump to specific content
+  </Accordion>
+
+  <Accordion title="URL Entry">
+    When pressing `g` to open location:
+    
+    - Type URL without protocol (added automatically)
+    - Use Tab key to auto-complete (if history)
+    - Press Escape to cancel
+    - Press Enter to load
+  </Accordion>
+
+  <Accordion title="Text Rendering">
+    External sites are simplified:
+    
+    - No images (shows `[IMAGE: description]`)
+    - No CSS styling
+    - No JavaScript
+    - Pure content extraction
+    
+    This makes reading faster and more focused.
+  </Accordion>
+
+  <Accordion title="Bookmark Management">
+    Use bookmarks for frequent sites:
+    
+    - Press `v` to view
+    - Links are numbered
+    - Easy to add common sites
+    - Persist across sessions
+  </Accordion>
+</AccordionGroup>
+
+## Source Code
+
+Lynx is implemented in:
+- `/src/scripts/features/lynx.ts`: Core browser engine (633 lines)
+- `/src/data/lynx-pages.json`: Internal page content
+- HTML to text converter with link extraction
+- Keyboard event handler for all navigation
+- History manager with back navigation
+- Bookmark system with persistence
+- External content fetching with fetch API

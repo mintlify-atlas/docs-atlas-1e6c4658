@@ -1,0 +1,421 @@
+---
+title: Man Page Viewer
+description: Browse Unix manual pages with 28 essential commands
+---
+
+The Man Page Viewer brings traditional Unix `man` pages to Time Capsule's graphical environment. It provides formatted manual pages for 28 essential Unix commands, complete with syntax highlighting, clickable examples, and cross-referenced related commands.
+
+## Features
+
+- **28 Manual Pages**: Essential Unix commands
+- **Clickable Examples**: Copy command examples with one click
+- **Cross-References**: Navigate between related commands
+- **Search**: Find text within man pages
+- **Keyboard Navigation**: Vi-style shortcuts
+- **Index View**: Browse all available commands
+- **Terminal Integration**: Launch from `man` command
+
+## Opening Man Viewer
+
+Launch in several ways:
+
+**From Panel**: Click Man Viewer icon
+
+**From Terminal Lab**:
+```bash
+man ls
+man grep
+man
+```
+
+**Direct Launch**: Opens to index of all commands
+
+## The 28 Manual Pages
+
+Man Viewer includes comprehensive documentation for:
+
+### File Operations
+- `ls` - List directory contents
+- `cd` - Change directory
+- `pwd` - Print working directory
+- `cat` - Concatenate and display files
+- `mkdir` - Make directories
+- `rmdir` - Remove directories
+- `rm` - Remove files
+- `cp` - Copy files
+- `mv` - Move/rename files
+- `touch` - Create empty files
+
+### Text Processing
+- `grep` - Search text patterns
+- `sed` - Stream editor
+- `awk` - Pattern scanning and processing
+- `head` - Output first part of files
+- `tail` - Output last part of files
+- `wc` - Word, line, character count
+- `sort` - Sort lines of text
+- `uniq` - Report or omit repeated lines
+
+### System Information
+- `ps` - Process status
+- `top` - Display processes
+- `df` - Disk free space
+- `du` - Disk usage
+- `free` - Memory usage
+
+### File Permissions
+- `chmod` - Change file permissions
+- `chown` - Change file owner
+
+### Archiving
+- `tar` - Archive files
+- `gzip` - Compress files
+
+### Other
+- `echo` - Display a line of text
+
+## Man Page Format
+
+Each manual page follows Unix man page conventions:
+
+```
+LS(1)                User Commands                LS(1)
+
+NAME
+       ls - list directory contents
+
+SYNOPSIS
+       ls [OPTION]... [FILE]...
+
+DESCRIPTION
+       List information about the FILEs (the current
+       directory by default). Sort entries alphabetically
+       if none of -cftuvSUX nor --sort is specified.
+
+       -a, --all
+              do not ignore entries starting with .
+
+       -l     use a long listing format
+
+       -h, --human-readable
+              with -l, print sizes in human readable format
+
+EXAMPLES
+  [1] ls
+      List files in current directory
+
+  [2] ls -la
+      List all files including hidden with details
+
+SEE ALSO
+       dir, cd, pwd
+```
+
+### Sections
+
+- **NAME**: Command name and brief description
+- **SYNOPSIS**: Command syntax with options
+- **DESCRIPTION**: Detailed explanation of functionality
+- **OPTIONS**: Available flags and arguments
+- **EXAMPLES**: Practical usage examples (clickable)
+- **SEE ALSO**: Related commands (clickable links)
+
+## Using Man Pages
+
+### Reading Pages
+
+**Scrolling**:
+- Mouse wheel: Scroll content
+- Page Up/Down: Jump by screen
+- Arrow keys: Line-by-line scrolling
+
+**Navigation**:
+- Sections are highlighted in **bold**
+- Options are indented
+- Examples are numbered and clickable
+
+### Clickable Examples
+
+Example commands can be copied:
+
+```
+EXAMPLES
+  [1] ls -la
+      List all files including hidden with details
+
+  [2] ls -lh
+      List with human-readable file sizes
+```
+
+Click `[1]` or `[2]` to copy the command to clipboard.
+
+**Status bar confirms**: "Copied: ls -la"
+
+### Cross-Referenced Commands
+
+Related commands are clickable links:
+
+```
+SEE ALSO
+       dir, cd, pwd
+```
+
+Click any command name to jump to its man page.
+
+## Index View
+
+Press `i` or launch without arguments to see all commands:
+
+```
+AVAILABLE COMMANDS
+
+  ls(1) - list directory contents
+  cd(1) - change the working directory
+  pwd(1) - print name of current/working directory
+  cat(1) - concatenate files and print on standard output
+  mkdir(1) - make directories
+  ...
+
+USAGE
+  Click on a command name to view its manual page
+  Or use the Terminal Lab: man <command>
+```
+
+**Status bar**: "28 manual pages available"
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `q` | Quit man viewer |
+| `h` or `?` | Show help |
+| `/` | Search in current page |
+| `i` | Return to index |
+| `←` | Go back to previous page |
+| `↑` / `↓` | Scroll content |
+| `PgUp` / `PgDn` | Page up/down |
+
+## Search Function
+
+Press `/` to search within the current man page:
+
+1. Enter search term
+2. Press `Enter`
+3. Matches are highlighted in yellow
+4. Status shows: `Found: "term"`
+
+Search is case-insensitive.
+
+Example:
+```
+Search: option
+→ Found: "option"
+(All instances of "option" highlighted)
+```
+
+## History Navigation
+
+Man Viewer maintains page history:
+
+- Press `←` to go back
+- Navigate through previously viewed pages
+- History persists within session
+
+Example flow:
+```
+Index → ls → grep → back to ls → back to Index
+```
+
+## Help Screen
+
+Press `h` or `?` to view help:
+
+```
+MAN VIEWER HELP
+
+KEYBOARD COMMANDS
+
+  q           Quit man viewer
+  h, ?        Show this help
+  /           Search in current page
+  i           Show index of all pages
+  ←           Go back to previous page
+  ↑↓          Scroll up/down
+  PgUp/PgDn   Page up/down
+
+MOUSE COMMANDS
+
+  Click on command names to view their manual pages
+  Click on [number] to copy example to clipboard
+  Click on related commands to navigate
+
+TERMINAL LAB INTEGRATION
+
+  man <command>   Open manual page for command
+  man             Show index of all pages
+
+Press any key to return
+```
+
+## Terminal Lab Integration
+
+From Terminal Lab (free mode):
+
+**Open specific page**:
+```bash
+man ls
+man grep
+man chmod
+```
+
+**Open index**:
+```bash
+man
+```
+
+**Status messages**:
+```
+Opening manual page for ls...
+Opening man page viewer...
+```
+
+Man Viewer opens in separate window showing the requested page.
+
+## Example Man Page: ls
+
+Complete example of `ls` manual page:
+
+```
+LS(1)                User Commands                LS(1)
+
+NAME
+       ls - list directory contents
+
+SYNOPSIS
+       ls [OPTION]... [FILE]...
+
+DESCRIPTION
+       List information about the FILEs (the current
+       directory by default). Sort entries alphabetically
+       if none of -cftuvSUX nor --sort is specified.
+
+       Mandatory arguments to long options are mandatory
+       for short options too.
+
+       -a, --all
+              do not ignore entries starting with .
+
+       -l     use a long listing format
+
+       -h, --human-readable
+              with -l, print sizes in human readable
+              format (e.g., 1K 234M 2G)
+
+       -t     sort by modification time, newest first
+
+       -r, --reverse
+              reverse order while sorting
+
+EXAMPLES
+  [1] ls
+      List files in current directory
+
+  [2] ls -la
+      List all files including hidden with details
+
+  [3] ls -lh
+      List with human-readable file sizes
+
+SEE ALSO
+       dir, cd, pwd
+```
+
+## Common Commands Overview
+
+### Most Used Man Pages
+
+**File Viewing**:
+- `ls` - List files
+- `cat` - Display file contents
+- `head` / `tail` - View file start/end
+
+**Text Search**:
+- `grep` - Search for patterns
+- `sed` - Edit text streams
+- `awk` - Process text columns
+
+**System Info**:
+- `ps` - Running processes
+- `top` - Live process monitor
+- `df` - Disk space
+- `free` - Memory usage
+
+**File Management**:
+- `cp` - Copy files
+- `mv` - Move/rename files
+- `rm` - Remove files
+- `chmod` - Change permissions
+
+## Tips and Tricks
+
+<AccordionGroup>
+  <Accordion title="Learning Unix Commands">
+    Best way to learn:
+    
+    1. Read the SYNOPSIS for command syntax
+    2. Check DESCRIPTION for detailed info
+    3. Copy EXAMPLES to Terminal Lab
+    4. Experiment in Terminal Lab free mode
+    5. Follow SEE ALSO links for related commands
+  </Accordion>
+
+  <Accordion title="Quick Navigation">
+    Navigate efficiently:
+    
+    - Press `i` to return to index anytime
+    - Click SEE ALSO links to explore related commands
+    - Use `←` to go back through history
+    - Press `q` to quit quickly
+  </Accordion>
+
+  <Accordion title="Copying Examples">
+    Use examples in Terminal Lab:
+    
+    1. Click example number (e.g., `[2]`)
+    2. Example copied to clipboard
+    3. Switch to Terminal Lab
+    4. Paste with `Ctrl+V`
+    5. Modify as needed
+    6. Press Enter to run
+  </Accordion>
+
+  <Accordion title="Searching Man Pages">
+    Find specific info quickly:
+    
+    - Press `/` to search
+    - Type option name (e.g., "recursive")
+    - Press Enter to highlight all matches
+    - Scroll to view each occurrence
+  </Accordion>
+
+  <Accordion title="Section Numbers">
+    Manual sections in Unix:
+    
+    - Section 1: User commands (most common)
+    - Section 5: File formats
+    - Section 8: System administration
+    
+    Time Capsule focuses on Section 1 (user commands).
+  </Accordion>
+</AccordionGroup>
+
+## Source Code
+
+Man Page Viewer is implemented in:
+- `/src/scripts/features/manviewer.ts`: Core viewer logic (374 lines)
+- `/src/data/manpages.json`: All 28 manual pages with full content
+- Clickable example system with clipboard integration
+- Cross-reference navigation between pages
+- Search highlighting with case-insensitive matching
+- History tracking for back navigation
+- Section syntax highlighting

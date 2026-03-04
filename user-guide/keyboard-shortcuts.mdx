@@ -1,0 +1,602 @@
+---
+title: 'Keyboard Shortcuts'
+description: 'Complete keyboard shortcuts reference for Time Capsule - master navigation, window management, and applications'
+icon: 'keyboard'
+---
+
+<Note>
+  This guide documents all keyboard shortcuts extracted from the source code. Shortcuts are implemented in `accessibility.ts` and throughout various application modules.
+</Note>
+
+## Essential Shortcuts
+
+<CardGroup cols={2}>
+  <Card title="Most Used" icon="star">
+    - `Ctrl+Alt+1-4` - Switch workspaces
+    - `Ctrl+W` - Close window
+    - `Ctrl+M` - Minimize window
+    - `Ctrl+Alt+E` - Open XEmacs
+    - `Ctrl+Shift+?` - Show shortcuts help
+  </Card>
+  
+  <Card title="Power User" icon="bolt">
+    - `Ctrl+Alt+F` - Toggle File Manager
+    - `Ctrl+Alt+T` - Open Terminal Lab
+    - `Ctrl+Alt+S` - Open Style Manager
+    - `Ctrl+Alt+H` - Toggle high contrast
+    - `Esc` - Cancel/close dialogs
+  </Card>
+</CardGroup>
+
+## Window Management
+
+<Tabs>
+  <Tab title="Basic Operations">
+    | Shortcut | Action | Implementation |
+    |----------|--------|----------------|
+    | `Ctrl+W` | Close active window | `accessibility.ts:180-189` |
+    | `Ctrl+M` | Minimize active window | `accessibility.ts:191-200` |
+    | `Alt+F4` | Close window (browser) | Standard browser shortcut |
+    | `Esc` | Close dialog/cancel | Global event handler |
+    
+    <Note>
+      The `Ctrl+W` shortcut closes the currently active window by finding the `.active` class and triggering its close button.
+    </Note>
+  </Tab>
+  
+  <Tab title="Window Manipulation">
+    ### Mouse Operations
+    
+    - **Drag titlebar** - Move window (disabled on mobile)
+    - **Double-click titlebar** - Shade/unshade window (`windowmanager.ts:734-778`)
+    - **Right-click titlebar** - Window menu
+    
+    ### Keyboard Focus
+    
+    - `Tab` - Navigate between focusable elements
+    - `Shift+Tab` - Navigate backwards
+    - `Enter` - Activate focused element
+    
+    <Info>
+      Tab navigation updates dynamically based on visible elements. Implementation in `accessibility.ts:282-319`.
+    </Info>
+  </Tab>
+  
+  <Tab title="Advanced">
+    ### Window States
+    
+    - **Maximize**: Double-click titlebar or click maximize button
+    - **Minimize**: `Ctrl+M` or click minimize button  
+    - **Shade**: Double-click titlebar (`windowmanager.ts:823-860`)
+    - **Focus**: Click window or hover (point-to-focus mode)
+    
+    ### Focus Modes
+    
+    Time Capsule supports two focus modes set via `data-focus-mode` attribute:
+    
+    - **Click to focus** (default): Click window to activate
+    - **Point to focus**: Hover over window to activate (`windowmanager.ts:403-418`)
+  </Tab>
+</Tabs>
+
+## Workspace Navigation
+
+<AccordionGroup>
+  <Accordion title="Workspace Switching" icon="grid-2x2">
+    | Shortcut | Action | Category |
+    |----------|--------|----------|
+    | `Ctrl+Alt+1` | Switch to Workspace 1 | Workspaces |
+    | `Ctrl+Alt+2` | Switch to Workspace 2 | Workspaces |
+    | `Ctrl+Alt+3` | Switch to Workspace 3 | Workspaces |
+    | `Ctrl+Alt+4` | Switch to Workspace 4 | Workspaces |
+    
+    These shortcuts are registered in a loop in `accessibility.ts:202-214`:
+    
+    ```typescript
+    for (let i = 1; i <= 4; i++) {
+      this.registerShortcut({
+        key: String(i),
+        ctrl: true,
+        alt: true,
+        action: () => {
+          WindowManager.switchWorkspace(String(i));
+        },
+        description: `Switch to Workspace ${i}`,
+        category: 'Workspaces',
+      });
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Desktop Context Menu" icon="mouse-pointer">
+    Right-click on desktop background to access workspace options:
+    
+    - Workspace 1-4 switching
+    - Quick access to applications
+    - Desktop file operations
+    
+    Implementation: `desktop.ts:613-644`
+  </Accordion>
+</AccordionGroup>
+
+## Application Launchers
+
+<Tabs>
+  <Tab title="Main Applications">
+    | Shortcut | Application | Implementation |
+    |----------|-------------|----------------|
+    | `Ctrl+Alt+E` | Open XEmacs | `accessibility.ts:86-98` |
+    | `Ctrl+Alt+F` | Toggle File Manager | `accessibility.ts:72-84` |
+    | `Ctrl+Alt+T` | Open Terminal Lab | `accessibility.ts:100-112` |
+    | `Ctrl+Alt+N` | Open Netscape Navigator | `accessibility.ts:128-140` |
+    | `Ctrl+Alt+L` | Open Lynx Browser | `accessibility.ts:114-126` |
+  </Tab>
+  
+  <Tab title="System Tools">
+    | Shortcut | Tool | Implementation |
+    |----------|------|----------------|
+    | `Ctrl+Alt+S` | Open Style Manager | `accessibility.ts:142-154` |
+    | `Ctrl+Shift+?` | Show keyboard shortcuts | `accessibility.ts:168-178` |
+    | `Ctrl+Alt+H` | Toggle high contrast mode | `accessibility.ts:156-166` |
+    
+    <Tip>
+      The `Ctrl+Shift+?` shortcut displays a comprehensive modal with all available shortcuts, grouped by category.
+    </Tip>
+  </Tab>
+  
+  <Tab title="Desktop Icons">
+    System icons on desktop can be activated by:
+    
+    - **Double-click** icon
+    - **Double-tap** on mobile (300ms detection window)
+    - **Enter key** when icon is focused
+    
+    Available system icons (`desktop.ts:21-54`):
+    - XEmacs
+    - Share Theme
+    - Netscape
+    - Lynx
+  </Tab>
+</Tabs>
+
+## XEmacs Shortcuts
+
+<Warning>
+  XEmacs uses traditional Emacs keybindings. These may conflict with browser shortcuts when not using PWA mode.
+</Warning>
+
+### Navigation
+
+<CardGroup cols={2}>
+  <Card title="Character Movement" icon="arrow-right">
+    - `Ctrl+F` - Forward character
+    - `Ctrl+B` - Backward character
+    - `Ctrl+N` - Next line
+    - `Ctrl+P` - Previous line
+  </Card>
+  
+  <Card title="Word/Line Movement" icon="text">
+    - `Ctrl+A` - Beginning of line
+    - `Ctrl+E` - End of line
+    - `Alt+F` - Forward word
+    - `Alt+B` - Backward word
+  </Card>
+</CardGroup>
+
+### Editing Operations
+
+| Shortcut | Action | Description |
+|----------|--------|-------------|
+| `Ctrl+D` | Delete character | Forward delete |
+| `Backspace` | Delete backward | Backward delete |
+| `Alt+D` | Delete word forward | Kill word |
+| `Alt+Backspace` | Delete word backward | Backward kill word |
+| `Ctrl+K` | Kill line | Delete to end of line |
+| `Ctrl+Y` | Yank (paste) | Paste from kill ring |
+| `Ctrl+W` | Kill region (cut) | Cut selection |
+| `Alt+W` | Copy region | Copy without cutting |
+| `Ctrl+/` or `Ctrl+_` | Undo | Undo last change |
+
+### Selection and Search
+
+```text
+Selection:
+  Ctrl+Space    Set mark (start selection)
+  Ctrl+X H      Select all
+
+Search:
+  Ctrl+S        Search forward (incremental)
+  Ctrl+R        Search backward
+  Alt+%         Query replace (with confirmation)
+```
+
+### File Operations
+
+<Steps>
+  <Step title="Open File">
+    `Ctrl+X Ctrl+F` - Opens file browser dialog
+  </Step>
+  
+  <Step title="Save File">
+    `Ctrl+X Ctrl+S` - Saves current file
+  </Step>
+  
+  <Step title="Save As">
+    `Ctrl+X Ctrl+W` - Write file to new location
+  </Step>
+  
+  <Step title="Exit">
+    `Ctrl+X Ctrl+C` - Exits XEmacs (prompts if unsaved changes)
+  </Step>
+</Steps>
+
+### Utility Commands
+
+- `Ctrl+G` - Cancel command (interrupt)
+- `Ctrl+L` - Recenter screen on cursor
+- `Alt+<` - Beginning of buffer
+- `Alt+>` - End of buffer
+- `Ctrl+V` - Page down
+- `Alt+V` - Page up
+
+## Terminal Lab Shortcuts
+
+<Tabs>
+  <Tab title="Command Line Editing">
+    | Shortcut | Action |
+    |----------|--------|
+    | `Ctrl+A` | Move to line start |
+    | `Ctrl+E` | Move to line end |
+    | `Ctrl+U` | Clear entire line |
+    | `Ctrl+K` | Kill to end of line |
+    | `Ctrl+W` | Delete previous word |
+    | `Ctrl+C` | Cancel current command |
+    | `Ctrl+L` | Clear screen |
+  </Tab>
+  
+  <Tab title="History Navigation">
+    | Key | Action |
+    |-----|--------|
+    | `↑` | Previous command |
+    | `↓` | Next command |
+    | `Ctrl+R` | Search command history |
+    | `!!` | Repeat last command |
+    
+    <Info>
+      Terminal Lab features 22 interactive lessons teaching Unix commands progressively.
+    </Info>
+  </Tab>
+  
+  <Tab title="Auto-completion">
+    - `Tab` - Auto-complete filenames and commands
+    - `Tab Tab` - Show all possible completions
+    
+    Special commands:
+    - `cd -` - Go to previous directory
+    - `mkdir -p a/b/c` - Create nested directories
+  </Tab>
+</Tabs>
+
+## File Manager Shortcuts
+
+<AccordionGroup>
+  <Accordion title="Navigation" icon="folder">
+    | Shortcut | Action |
+    |----------|--------|
+    | `Enter` | Open selected file/folder |
+    | `Backspace` | Go to parent directory |
+    | `Alt+Home` | Jump to home directory |
+    | `Alt+↑` | Go up one level |
+    | Type letter | Jump to file starting with letter |
+  </Accordion>
+  
+  <Accordion title="File Operations" icon="file">
+    | Shortcut | Action |
+    |----------|--------|
+    | `Ctrl+A` | Select all |
+    | `Ctrl+C` | Copy selected |
+    | `Ctrl+X` | Cut selected |
+    | `Ctrl+V` | Paste |
+    | `Delete` | Delete selected |
+    | `F2` | Rename selected |
+    | `F5` | Refresh view |
+    | `Ctrl+N` | New folder |
+  </Accordion>
+  
+  <Accordion title="Context Menu" icon="mouse-pointer">
+    Right-click on files/folders for operations:
+    - Open
+    - Copy/Cut/Paste
+    - Rename
+    - Properties
+    - Delete
+    
+    Implementation: `desktop.ts:486-696`
+  </Accordion>
+</AccordionGroup>
+
+## Desktop Shortcuts
+
+### Desktop Icon Operations
+
+<CardGroup cols={2}>
+  <Card title="Mouse Actions" icon="mouse">
+    - **Single click** - Select icon
+    - **Double-click** - Open/launch
+    - **Drag** - Move icon position (snaps to grid)
+    - **Right-click** - Context menu
+  </Card>
+  
+  <Card title="Touch Actions" icon="hand">
+    - **Tap** - Select icon
+    - **Double-tap** - Open (300ms window)
+    - **Long-press** - Context menu (500ms)
+    - Drag disabled on mobile
+  </Card>
+</CardGroup>
+
+### Context Menu Options
+
+```text
+Icon Context Menu:
+  - Open
+  - Copy (disabled for system icons)
+  - Cut (disabled for system icons)
+  - Rename (disabled for system icons)
+  - Properties
+  - Delete (disabled for system icons)
+
+Desktop Context Menu:
+  - Paste
+  - Programs (FileManager, XEmacs, Netscape)
+  - Workspaces (1-4)
+  - Tools (New File, New Folder, Style Manager, etc.)
+```
+
+## Netscape Navigator Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+L` | Focus address bar |
+| `Enter` | Navigate to URL |
+| `Backspace` | Go back in history |
+| `Shift+Backspace` | Go forward in history |
+| `Ctrl+R` | Reload page |
+| `Ctrl+H` | Go to home page |
+| `Esc` | Stop loading page |
+
+## Style Manager Shortcuts
+
+<Tabs>
+  <Tab title="Navigation">
+    - `↑/↓` - Navigate through palettes or backdrops
+    - `Tab` - Switch between sections
+    - `Enter` - Apply selected option
+    - `Esc` - Close Style Manager
+  </Tab>
+  
+  <Tab title="Quick Apply">
+    1. `Ctrl+Alt+S` - Open Style Manager
+    2. Use arrow keys to browse
+    3. `Enter` - Apply immediately
+    4. `Esc` - Close
+    
+    This workflow allows rapid theme testing.
+  </Tab>
+</Tabs>
+
+## Accessibility Shortcuts
+
+<Note>
+  Time Capsule includes comprehensive accessibility features for users with different needs.
+</Note>
+
+| Shortcut | Action | Implementation |
+|----------|--------|----------------|
+| `Ctrl+Alt+H` | Toggle high contrast mode | `accessibility.ts:156-166` |
+| `Tab` | Navigate focusable elements | `accessibility.ts:282-308` |
+| `Shift+Tab` | Navigate backwards | `accessibility.ts:289-295` |
+| `Enter` | Activate focused element | `accessibility.ts:311-317` |
+| `Esc` | Blur input fields | `accessibility.ts:255-258` |
+
+### High Contrast Mode
+
+When enabled:
+- Adds `.high-contrast` class to document root
+- Increases color contrast ratios
+- Persists preference to storage
+- Implementation: `accessibility.ts:348-361`
+
+## Common Clipboard Operations
+
+<Warning>
+  Standard clipboard shortcuts (`Ctrl+C`, `Ctrl+V`, `Ctrl+X`) are registered but handled by individual components.
+</Warning>
+
+| Shortcut | Action | Context |
+|----------|--------|--------|
+| `Ctrl+C` | Copy | File Manager, Desktop, Text selection |
+| `Ctrl+V` | Paste | File Manager, Desktop, Text editors |
+| `Ctrl+X` | Cut | File Manager, Desktop, Text editors |
+| `Delete` | Delete | File Manager, Desktop selected items |
+
+Registered in `accessibility.ts:216-242`
+
+## Shortcut Help Dialog
+
+<Tip>
+  Press `Ctrl+Shift+?` anywhere in the application to view all shortcuts organized by category!
+</Tip>
+
+The shortcuts help dialog (`accessibility.ts:376-423`) displays:
+
+- All registered shortcuts grouped by category
+- Visual key representations with `<kbd>` tags
+- Scrollable interface
+- Categories: Applications, System, Window Management, Workspaces, Help, Common, Accessibility
+
+## Learning Tips
+
+<Steps>
+  <Step title="Start with the Essential 5">
+    1. `Ctrl+Alt+1-4` - Workspace switching
+    2. `Ctrl+W` - Close window
+    3. `Ctrl+Alt+E` - Open XEmacs
+    4. `Ctrl+X Ctrl+S` - Save in XEmacs
+    5. `Ctrl+Shift+?` - View all shortcuts
+  </Step>
+  
+  <Step title="Practice Daily">
+    Force yourself to use keyboard shortcuts instead of mouse for one week. Muscle memory develops after 2-3 weeks.
+  </Step>
+  
+  <Step title="Print Quick Reference">
+    Keep a printed reference card near your workspace:
+    ```
+    GLOBAL              XEMACS              WORKSPACES
+    Ctrl+Alt+E  XEmacs  Ctrl+X Ctrl+S Save  Ctrl+Alt+1-4 Switch
+    Ctrl+Alt+F  Files   Ctrl+S Search       
+    Ctrl+Alt+T  Term    Ctrl+W Cut          
+    Ctrl+W      Close   Alt+W  Copy         
+    Ctrl+M      Min     Ctrl+Y Paste        
+    ```
+  </Step>
+  
+  <Step title="Use PWA Mode">
+    Install Time Capsule as a PWA to avoid browser shortcut conflicts, especially for XEmacs keybindings.
+  </Step>
+</Steps>
+
+## Platform-Specific Notes
+
+<Tabs>
+  <Tab title="Windows">
+    - All `Ctrl` and `Alt` shortcuts work as documented
+    - No special modifications needed
+    - May conflict with Windows system shortcuts
+  </Tab>
+  
+  <Tab title="macOS">
+    - Some shortcuts may use `Cmd` instead of `Ctrl`
+    - `Option` key functions as `Alt`
+    - May conflict with macOS system shortcuts
+    - Recommend PWA mode for best experience
+  </Tab>
+  
+  <Tab title="Linux">
+    - All shortcuts work as documented
+    - May conflict with desktop environment shortcuts (GNOME, KDE, etc.)
+    - Consider remapping conflicting DE shortcuts
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Shortcuts not working" icon="triangle-exclamation">
+    **Possible causes:**
+    - Focus is in an input field or textarea (shortcuts disabled)
+    - Browser intercepting the shortcut
+    - Conflicting browser extension
+    
+    **Solutions:**
+    - Press `Esc` to blur input fields
+    - Use PWA mode to avoid browser conflicts
+    - Disable conflicting extensions
+  </Accordion>
+  
+  <Accordion title="XEmacs shortcuts conflict with browser" icon="browsers">
+    Common conflicts:
+    - `Ctrl+W` - Browser closes tab vs. XEmacs cut
+    - `Ctrl+T` - Browser new tab vs. XEmacs transpose
+    - `Ctrl+N` - Browser new window vs. XEmacs next line
+    
+    **Solution:** Install Time Capsule as a PWA for isolated environment.
+  </Accordion>
+  
+  <Accordion title="Shortcut help not showing" icon="question">
+    - Ensure you're pressing `Ctrl+Shift+?` (question mark requires Shift)
+    - Check that CDEModal system is loaded
+    - Try refreshing the application
+  </Accordion>
+</AccordionGroup>
+
+## Technical Implementation
+
+<CodeGroup>
+
+```typescript accessibility.ts:49-66
+public registerShortcut(shortcut: KeyboardShortcut): void {
+  this.shortcuts.push(shortcut);
+  logger.log(`[Accessibility] Registered shortcut: ${this.formatShortcut(shortcut)}`);
+}
+
+private formatShortcut(shortcut: KeyboardShortcut): string {
+  const parts: string[] = [];
+  if (shortcut.ctrl) parts.push('Ctrl');
+  if (shortcut.alt) parts.push('Alt');
+  if (shortcut.shift) parts.push('Shift');
+  if (shortcut.meta) parts.push('Meta');
+  parts.push(shortcut.key.toUpperCase());
+  return parts.join('+');
+}
+```
+
+```typescript accessibility.ts:250-276
+private handleKeyDown(e: KeyboardEvent): void {
+  const target = e.target as HTMLElement;
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    if (e.key === 'Escape') {
+      target.blur();
+    }
+    return;
+  }
+
+  // Check for matching shortcut
+  for (const shortcut of this.shortcuts) {
+    const ctrlMatch = shortcut.ctrl ? e.ctrlKey : !e.ctrlKey;
+    const altMatch = shortcut.alt ? e.altKey : !e.altKey;
+    const shiftMatch = shortcut.shift ? e.shiftKey : !e.shiftKey;
+    const metaMatch = shortcut.meta ? e.metaKey : !e.metaKey;
+    const keyMatch = e.key.toLowerCase() === shortcut.key.toLowerCase();
+
+    if (ctrlMatch && altMatch && shiftMatch && metaMatch && keyMatch) {
+      e.preventDefault();
+      e.stopPropagation();
+      shortcut.action();
+      if (AudioManager) AudioManager.click();
+      return;
+    }
+  }
+}
+```
+
+</CodeGroup>
+
+## Related Documentation
+
+<CardGroup cols={3}>
+  <Card title="Workspaces Guide" icon="grid-2x2" href="/user-guide/workspaces">
+    Learn to organize work across 4 virtual desktops
+  </Card>
+  
+  <Card title="XEmacs Guide" icon="code" href="/applications/xemacs">
+    Complete XEmacs editing tutorial
+  </Card>
+  
+  <Card title="Terminal Lab" icon="terminal" href="/applications/terminal-lab">
+    22 interactive Unix command lessons
+  </Card>
+  
+  <Card title="Tips & Tricks" icon="lightbulb" href="/user-guide/tips-and-tricks">
+    Power user tips and hidden features
+  </Card>
+  
+  <Card title="Style Manager" icon="palette" href="/user-guide/style-manager">
+    Customize with 76 palettes and 168 backdrops
+  </Card>
+  
+  <Card title="File Manager" icon="folder" href="/applications/file-manager">
+    Navigate the virtual filesystem
+  </Card>
+</CardGroup>

@@ -1,0 +1,915 @@
+---
+title: 'Window Manager'
+description: 'Window lifecycle, drag and drop, focus management, and z-index orchestration'
+---
+
+# Window Manager
+
+The WindowManager is the core system responsible for managing all window operations in Time Capsule. It handles window lifecycle, positioning, dragging, focus management, z-index ordering, and workspace assignment.
+
+## Overview
+
+WindowManager is implemented as a singleton module pattern with private state and exposed public methods:
+
+<CodeGroup>
+```typescript Module Structure
+const WindowManager = (() => {
+  let zIndex = CONFIG.WINDOW.BASE_Z_INDEX;
+  let highestWindowZIndex = CONFIG.WINDOW.BASE_Z_INDEX;
+  let highestModalZIndex = 90000;
+  let currentWorkspace = '1';
+  let lastFocusedWindowId: string | null = null;
+  const dragState: DragState = { /* ... */ };
+
+  // Public API
+  return {
+    init,
+    drag,
+    focusWindow,
+    registerWindow,
+    centerWindow,
+    switchWorkspace,
+    showWindow,
+    getNextZIndex,
+    getTopZIndex,
+  };
+})();
+```
+</CodeGroup>
+
+## Key Concepts
+
+### Window Registration
+
+All windows must be registered with WindowManager to enable management features:
+
+<CodeGroup>
+```typescript Registration Flow
+function registerWindow(win: HTMLElement): void {
+  if (win.hasAttribute('data-cde-registered')) return;
+
+  const id = win.id;
+  const titlebar = document.getElementById(`${id}Titlebar`) || 
+                   win.querySelector('.titlebar');
+
+  if (titlebar) {
+    // Restore session position if available
+    const session = settingsManager
+      .getSection('session')
+      .windows[id];
+      
+    if (session && session.left && session.top) {
+      win.style.left = session.left;
+      win.style.top = session.top;
+      if (session.maximized) {
+        win.classList.add('maximized');
+      }
+    } else {
+      // First time: normalize position
+      setTimeout(() => {
+        normalizeWindowPosition(win);
+      }, CONFIG.TIMINGS.NORMALIZATION_DELAY);
+    }
+
+    // Enable dragging
+    titlebar.style.touchAction = 'none';
+    titlebar.addEventListener(
+      'pointerdown', 
+      titlebarDragHandler
+    );
+    
+    win.setAttribute('data-cde-registered', 'true');
+  }
+}
+```
+</CodeGroup>
+
+### Dynamic Scanning
+
+WindowManager uses a MutationObserver to automatically detect and register new windows:
+
+<CodeGroup>
+```typescript Auto-Registration
+function initDynamicScanning(): void {
+  // Scan existing windows
+  const windows = document.querySelectorAll(
+    '.window, .cde-retro-modal'
+  );
+  windows.forEach((el) => registerWindow(el as HTMLElement));
+
+  // Observe for new windows
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node instanceof HTMLElement) {
+          if (node.classList.contains('window') || 
+              node.classList.contains('cde-retro-modal')) {
+            registerWindow(node);
+          }
+          // Scan children
+          node.querySelectorAll('.window, .cde-retro-modal')
+            .forEach((el) => registerWindow(el as HTMLElement));
+        }
+      });
+    });
+  });
+
+  observer.observe(document.body, { 
+    childList: true, 
+    subtree: true 
+  });
+}
+```
+</CodeGroup>
+
+## Z-Index Management
+
+### Layered Z-Index System
+
+Z-indexes are managed in separate layers to prevent conflicts:
+
+<CodeGroup>
+```typescript Z-Index Layers
+// Layer allocation
+const BASE_WINDOW_Z = 10000;  // Regular windows
+const BASE_MODAL_Z = 90000;   // Modal dialogs
+const DROPDOWN_Z = 20000;     // Dropdown menus
+
+let highestWindowZIndex = CONFIG.WINDOW.BASE_Z_INDEX;
+let highestModalZIndex = 90000;
+
+function getNextZIndex(isModal: boolean = false): number {
+  if (isModal) {
+    return ++highestModalZIndex;
+  }
+  return ++highestWindowZIndex;
+}
+
+function getTopZIndex(): number {
+  return Math.max(highestWindowZIndex, highestModalZIndex);
+}
+```
+</CodeGroup>
+
+### Focus and Z-Index
+
+Focusing a window assigns it the highest z-index in its layer:
+
+<CodeGroup>
+```typescript Focus Implementation
+function focusWindow(id: string): void {
+  if (id === lastFocusedWindowId) return;
+
+  const win = document.getElementById(id);
+  if (!win) return;
+
+  if (!dragState.isDragging) {
+    // Remove active class from previous window
+    if (lastFocusedWindowId) {
+      const prevWin = document.getElementById(
+        lastFocusedWindowId
+      );
+      if (prevWin) prevWin.classList.remove('active');
+    }
+
+    // Periodic cleanup of stale classes
+    if (Math.random() < 0.05) {
+      document.querySelectorAll('.active').forEach((el) => {
+        if (el.id !== id) el.classList.remove('active');
+      });
+    }
+
+    win.classList.add('active');
+    lastFocusedWindowId = id;
+
+    zIndex = getNextZIndex();
+    win.style.zIndex = String(zIndex);
+
+    if (window.AudioManager) window.AudioManager.click();
+  }
+}
+```
+</CodeGroup>
+
+## Drag and Drop
+
+### Drag State Management
+
+<CodeGroup>
+```typescript DragState Interface
+interface DragState {
+  element: HTMLElement | null;
+  offsetX: number;
+  offsetY: number;
+  startX: number;
+  startY: number;
+  startLeft: number;
+  startTop: number;
+  lastX: number;
+  lastY: number;
+  isDragging: boolean;
+}
+```
+</CodeGroup>
+
+### Pointer-Based Dragging
+
+Dragging uses PointerEvents for unified mouse/touch support:
+
+<CodeGroup>
+```typescript Drag Initiation
+function drag(e: PointerEvent, id: string): void {
+  // Disable drag on mobile
+  if (isMobile()) {
+    logger.log(
+      `[WindowManager] Drag disabled on mobile for: ${id}`
+    );
+    return;
+  }
+
+  if (!e.isPrimary) return;
+
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  // Normalize position if transform is applied
+  if (window.getComputedStyle(el).transform !== 'none') {
+    normalizeWindowPosition(el);
+  }
+
+  focusWindow(id);
+
+  const rect = el.getBoundingClientRect();
+  dragState.element = el;
+  dragState.offsetX = e.clientX - rect.left;
+  dragState.offsetY = e.clientY - rect.top;
+  dragState.lastX = e.clientX;
+  dragState.lastY = e.clientY;
+  dragState.isDragging = true;
+
+  // Capture pointer for reliable tracking
+  el.setPointerCapture(e.pointerId);
+
+  // X11-style move cursor
+  document.documentElement.style.setProperty(
+    '--cde-cursor-override',
+    "url('/icons/cursors/cursor-move.svg') 12 12, move"
+  );
+  document.body.style.cursor = 
+    "url('/icons/cursors/cursor-move.svg') 12 12, move";
+
+  // Performance optimization
+  el.style.willChange = 'transform, left, top';
+
+  el.addEventListener('pointermove', move, { passive: false });
+  el.addEventListener('pointerup', stopDrag, { passive: false });
+  el.addEventListener('pointercancel', stopDrag, { passive: false });
+}
+```
+</CodeGroup>
+
+### Mouse Acceleration
+
+Mouse movement supports configurable acceleration:
+
+<CodeGroup>
+```typescript Accelerated Movement
+function move(e: PointerEvent): void {
+  if (!dragState.element || !dragState.isDragging) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  // Get acceleration from CSS variable
+  const accelStr = getComputedStyle(document.documentElement)
+    .getPropertyValue('--mouse-acceleration');
+  const acceleration = parseFloat(accelStr) || 1;
+
+  // Calculate delta
+  const deltaX = e.clientX - dragState.lastX;
+  const deltaY = e.clientY - dragState.lastY;
+
+  // Apply acceleration
+  let currentLeft = parseFloat(
+    dragState.element.style.left || '0'
+  );
+  let currentTop = parseFloat(
+    dragState.element.style.top || '0'
+  );
+
+  let left = currentLeft + deltaX * acceleration;
+  let top = currentTop + deltaY * acceleration;
+
+  // Update tracking
+  dragState.lastX = e.clientX;
+  dragState.lastY = e.clientY;
+
+  // Apply constraints (shown in next section)
+  // ...
+
+  dragState.element.style.left = left + 'px';
+  dragState.element.style.top = top + 'px';
+}
+```
+</CodeGroup>
+
+### Viewport Constraints
+
+Windows are constrained to stay within viewport bounds:
+
+<CodeGroup>
+```typescript Position Clamping
+function move(e: PointerEvent): void {
+  // ... delta calculation ...
+
+  const winWidth = dragState.element.offsetWidth;
+  const winHeight = dragState.element.offsetHeight;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const TOP_BAR_HEIGHT = CONFIG.WINDOW.TOP_BAR_HEIGHT;
+  const PANEL_HEIGHT = isMobile() ? 65 : 85;
+
+  // Define bounds
+  const minX = 0;
+  const maxX = Math.max(0, viewportWidth - winWidth);
+  const minY = TOP_BAR_HEIGHT;
+  const maxY = Math.max(
+    minY, 
+    viewportHeight - winHeight - PANEL_HEIGHT
+  );
+
+  // Clamp position
+  left = Math.max(minX, Math.min(left, maxX));
+  top = Math.max(minY, Math.min(top, maxY));
+
+  dragState.element.style.left = left + 'px';
+  dragState.element.style.top = top + 'px';
+}
+```
+</CodeGroup>
+
+### Opaque vs Wireframe Dragging
+
+<CodeGroup>
+```typescript Drag Rendering Mode
+function move(e: PointerEvent): void {
+  // ...
+  
+  // Check if opaque dragging is enabled
+  const opaque = document.documentElement
+    .getAttribute('data-opaque-drag') !== 'false';
+    
+  if (!opaque) {
+    // Wireframe mode: lighter rendering
+    dragState.element.classList.add('dragging-wireframe');
+  }
+  
+  // ...
+}
+```
+
+```css Wireframe Style
+.dragging-wireframe {
+  opacity: 0.5;
+  outline: 2px dashed var(--border-dark);
+  background: transparent !important;
+}
+
+.dragging-wireframe * {
+  visibility: hidden;
+}
+
+.dragging-wireframe .titlebar {
+  visibility: visible;
+}
+```
+</CodeGroup>
+
+### Drag Completion
+
+<CodeGroup>
+```typescript Stop Dragging
+function stopDrag(e: PointerEvent): void {
+  if (!dragState.element || !dragState.isDragging) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const el = dragState.element;
+  el.releasePointerCapture(e.pointerId);
+  el.removeEventListener('pointermove', move);
+  el.removeEventListener('pointerup', stopDrag);
+  el.removeEventListener('pointercancel', stopDrag);
+
+  // Clear performance hints
+  el.style.willChange = 'auto';
+
+  // Restore cursor
+  document.body.style.cursor = '';
+
+  el.classList.remove('dragging-wireframe');
+  dragState.isDragging = false;
+
+  // Persist position
+  settingsManager.updateWindowSession(el.id, {
+    left: el.style.left,
+    top: el.style.top,
+    maximized: el.classList.contains('maximized'),
+  });
+
+  dragState.element = null;
+}
+```
+</CodeGroup>
+
+## Window Operations
+
+### Minimize
+
+<CodeGroup>
+```typescript Minimize Window
+function minimizeWindow(id: string): void {
+  const win = document.getElementById(id);
+  if (!win) return;
+
+  if (win.style.display !== 'none') {
+    // Save state before hiding
+    windowStates[id] = {
+      display: win.style.display,
+      left: win.style.left,
+      top: win.style.top,
+      width: win.style.width,
+      height: win.style.height,
+      maximized: win.classList.contains('maximized'),
+    };
+
+    // Animate closing
+    win.classList.add('window-closing');
+    if (window.AudioManager) {
+      window.AudioManager.windowMinimize();
+    }
+
+    // Hide after animation
+    win.addEventListener(
+      'animationend',
+      () => {
+        win.style.display = 'none';
+        win.classList.remove('window-closing');
+      },
+      { once: true }
+    );
+  }
+}
+```
+</CodeGroup>
+
+### Maximize
+
+<CodeGroup>
+```typescript Maximize/Restore Window
+function maximizeWindow(id: string): void {
+  const win = document.getElementById(id);
+  if (!win || win.hasAttribute('data-no-maximize')) return;
+
+  if (win.classList.contains('maximized')) {
+    // Restore
+    win.classList.remove('maximized');
+    if (window.AudioManager) {
+      window.AudioManager.windowMaximize();
+    }
+
+    // Update icon
+    const maxBtnImg = win.querySelector('.max-btn img') as 
+      HTMLImageElement;
+    if (maxBtnImg) {
+      maxBtnImg.src = '/icons/ui/maximize-inactive.png';
+    }
+
+    // Restore saved size/position
+    if (windowStates[id]) {
+      win.style.left = windowStates[id].left || '';
+      win.style.top = windowStates[id].top || '';
+      win.style.width = windowStates[id].width || '';
+      win.style.height = windowStates[id].height || '';
+    }
+    
+    settingsManager.updateWindowSession(id, { 
+      maximized: false 
+    });
+  } else {
+    // Maximize
+    windowStates[id] = {
+      left: win.style.left,
+      top: win.style.top,
+      width: win.style.width,
+      height: win.style.height,
+      maximized: false,
+    };
+    
+    win.classList.add('maximized');
+    if (window.AudioManager) {
+      window.AudioManager.windowMaximize();
+    }
+
+    // Update icon
+    const maxBtnImg = win.querySelector('.max-btn img') as 
+      HTMLImageElement;
+    if (maxBtnImg) {
+      maxBtnImg.src = '/icons/ui/maximize-toggled-inactive.png';
+    }
+    
+    settingsManager.updateWindowSession(id, { 
+      maximized: true 
+    });
+  }
+  
+  WindowManager.focusWindow(id);
+}
+```
+</CodeGroup>
+
+### Window Shading
+
+Double-click titlebar to "shade" (roll up) a window:
+
+<CodeGroup>
+```typescript Shade Window
+function shadeWindow(id: string): void {
+  const win = document.getElementById(id);
+  if (!win) return;
+
+  const titlebar = win.querySelector('.titlebar') as HTMLElement;
+  if (!titlebar) return;
+
+  const isMaximized = win.classList.contains('maximized');
+
+  if (win.classList.contains('shaded')) {
+    // Unshade: restore height
+    win.classList.remove('shaded');
+
+    if (isMaximized) {
+      win.style.height = '';
+    } else if (windowStates[id]?.height) {
+      win.style.height = windowStates[id].height!;
+    }
+
+    if (window.AudioManager) {
+      window.AudioManager.windowShade();
+    }
+  } else {
+    // Shade: save height and collapse
+    if (!isMaximized) {
+      windowStates[id] = {
+        ...windowStates[id],
+        height: win.style.height || 
+                getComputedStyle(win).height,
+      };
+    }
+
+    win.classList.add('shaded');
+    win.style.height = titlebar.offsetHeight + 'px';
+
+    if (window.AudioManager) {
+      window.AudioManager.windowShade();
+    }
+  }
+}
+```
+</CodeGroup>
+
+## Focus Management
+
+### Focus Modes
+
+Two focus modes are supported:
+
+<Tabs>
+  <Tab title="Click-to-Focus">
+    Default mode. Windows receive focus when clicked.
+    
+    ```typescript
+    document.addEventListener('pointerdown', (e) => {
+      if (dragState.isDragging) return;
+      
+      const target = e.target as HTMLElement;
+      const win = target.closest('.window, .cde-retro-modal');
+      if (win) {
+        focusWindow(win.id);
+      }
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Point-to-Focus">
+    X11-style: Windows receive focus when mouse enters.
+    
+    ```typescript
+    document.addEventListener('pointerenter', (e) => {
+      const mode = document.documentElement
+        .getAttribute('data-focus-mode');
+      if (mode !== 'point') return;
+
+      const target = e.target as HTMLElement;
+      const win = target.closest('.window, .cde-retro-modal');
+      if (win) {
+        focusWindow(win.id);
+      }
+    }, true);
+    ```
+  </Tab>
+</Tabs>
+
+## Workspace Management
+
+### Virtual Desktops
+
+WindowManager supports 4 virtual workspaces:
+
+<CodeGroup>
+```typescript Switch Workspace
+function switchWorkspace(id: string): void {
+  if (id === currentWorkspace) return;
+
+  AudioManager.click();
+
+  const windows = document.querySelectorAll(
+    '.window, .cde-retro-modal'
+  );
+
+  // Hide windows from current workspace
+  windows.forEach((win) => {
+    const el = win as HTMLElement;
+    const winWorkspace = el.getAttribute('data-workspace');
+
+    if (winWorkspace === currentWorkspace) {
+      const isVisible = 
+        window.getComputedStyle(el).display !== 'none';
+      
+      if (isVisible) {
+        el.setAttribute('data-was-opened', 'true');
+        el.style.display = 'none';
+      }
+    }
+  });
+
+  currentWorkspace = id;
+
+  // Show windows from new workspace
+  windows.forEach((win) => {
+    const el = win as HTMLElement;
+    const winWorkspace = el.getAttribute('data-workspace');
+
+    if (winWorkspace === currentWorkspace) {
+      if (el.getAttribute('data-was-opened') === 'true') {
+        el.style.display = 'flex';
+      }
+    }
+  });
+
+  // Update pager UI
+  const pagerItems = document.querySelectorAll(
+    '.pager-workspace'
+  );
+  pagerItems.forEach((item) => {
+    if ((item as HTMLElement).dataset.workspace === id) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
+    }
+  });
+}
+```
+</CodeGroup>
+
+### Workspace Assignment
+
+Windows are automatically assigned to the current workspace when opened:
+
+<CodeGroup>
+```typescript Show Window
+function showWindow(id: string): void {
+  const win = document.getElementById(id);
+  if (!win) return;
+
+  // Assign workspace on first show
+  if (!win.getAttribute('data-workspace')) {
+    win.setAttribute('data-workspace', currentWorkspace);
+  }
+
+  // Mark as opened
+  win.setAttribute('data-was-opened', 'true');
+
+  win.style.display = 'flex';
+  win.classList.add('window-opening');
+
+  // Center on mobile
+  if (isMobile()) {
+    centerWindow(win);
+  }
+
+  focusWindow(id);
+  AudioManager.windowOpen();
+
+  win.addEventListener(
+    'animationend',
+    () => {
+      win.classList.remove('window-opening');
+    },
+    { once: true }
+  );
+}
+```
+</CodeGroup>
+
+## Mobile Considerations
+
+### Disabled Features
+
+Certain features are disabled on mobile for better UX:
+
+<CodeGroup>
+```typescript Mobile Detection
+function isMobile(): boolean {
+  return window.innerWidth < 768;
+}
+
+// Drag disabled on mobile
+function drag(e: PointerEvent, id: string): void {
+  if (isMobile()) {
+    logger.log('[WindowManager] Drag disabled on mobile');
+    return;
+  }
+  // ...
+}
+```
+</CodeGroup>
+
+### Automatic Centering
+
+Windows are automatically centered on mobile devices:
+
+<CodeGroup>
+```typescript Mobile Centering
+function centerWindow(win: HTMLElement): void {
+  const winWidth = win.offsetWidth;
+  const winHeight = win.offsetHeight;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const TOP_BAR_HEIGHT = CONFIG.WINDOW.TOP_BAR_HEIGHT;
+  const PANEL_HEIGHT = isMobile() ? 65 : 85;
+
+  let left = (viewportWidth - winWidth) / 2;
+  let top = (viewportHeight - winHeight) / 2;
+
+  // Clamp to viewport
+  const minX = 0;
+  const maxX = Math.max(0, viewportWidth - winWidth);
+  const minY = TOP_BAR_HEIGHT;
+  const maxY = Math.max(
+    minY, 
+    viewportHeight - winHeight - PANEL_HEIGHT
+  );
+
+  left = Math.max(minX, Math.min(left, maxX));
+  top = Math.max(minY, Math.min(top, maxY));
+
+  win.style.position = 'absolute';
+  win.style.left = `${left}px`;
+  win.style.top = `${top}px`;
+  win.style.transform = 'none';
+}
+```
+</CodeGroup>
+
+## Resize Handling
+
+Windows are normalized when viewport resizes:
+
+<CodeGroup>
+```typescript Viewport Resize
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = window.setTimeout(() => {
+    logger.log(
+      '[WindowManager] Viewport resized, ' + 
+      'normalizing positions...'
+    );
+    
+    document.querySelectorAll('.window, .cde-retro-modal')
+      .forEach((win) => {
+        if (win instanceof HTMLElement) {
+          if (isMobile()) {
+            centerWindow(win);
+          } else {
+            normalizeWindowPosition(win);
+          }
+        }
+      });
+  }, CONFIG.TIMINGS.NORMALIZATION_DELAY);
+});
+```
+</CodeGroup>
+
+## Global Exposure
+
+WindowManager functions are exposed globally for legacy compatibility:
+
+<CodeGroup>
+```typescript Global Declarations
+declare global {
+  interface Window {
+    drag: (e: PointerEvent, id: string) => void;
+    focusWindow: (id: string) => void;
+    centerWindow: (win: HTMLElement) => void;
+    minimizeWindow: typeof minimizeWindow;
+    maximizeWindow: typeof maximizeWindow;
+    shadeWindow: typeof shadeWindow;
+    WindowManager: typeof WindowManager;
+  }
+}
+
+window.drag = WindowManager.drag;
+window.focusWindow = WindowManager.focusWindow;
+window.centerWindow = WindowManager.centerWindow;
+window.minimizeWindow = minimizeWindow;
+window.maximizeWindow = maximizeWindow;
+window.shadeWindow = shadeWindow;
+window.WindowManager = WindowManager;
+```
+</CodeGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Always Register Windows">
+    Ensure windows have proper structure and are registered:
+    
+    ```html
+    <div id="myWindow" class="window">
+      <div id="myWindowTitlebar" class="titlebar">
+        <span class="titlebar-text">My Window</span>
+        <div class="titlebar-buttons">
+          <button class="min-btn" 
+                  onclick="minimizeWindow('myWindow')">
+            <img src="/icons/ui/shade-inactive.png" />
+          </button>
+          <button class="max-btn" 
+                  onclick="maximizeWindow('myWindow')">
+            <img src="/icons/ui/maximize-inactive.png" />
+          </button>
+          <button class="close-btn" 
+                  onclick="document.getElementById('myWindow').style.display='none'">
+            <img src="/icons/ui/close-inactive.png" />
+          </button>
+        </div>
+      </div>
+      <div class="window-content">
+        <!-- Content -->
+      </div>
+    </div>
+    ```
+  </Accordion>
+  
+  <Accordion title="Persist Window State">
+    Use `updateWindowSession` after position/state changes:
+    
+    ```typescript
+    settingsManager.updateWindowSession(id, {
+      left: win.style.left,
+      top: win.style.top,
+      maximized: win.classList.contains('maximized'),
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Handle Mobile Gracefully">
+    Check `isMobile()` before drag/resize operations:
+    
+    ```typescript
+    if (isMobile()) {
+      centerWindow(win);
+      return; // Skip desktop-specific operations
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="sitemap" href="/technical/architecture">
+    Overall system architecture overview
+  </Card>
+  <Card title="Storage" icon="database" href="/technical/storage">
+    Window session persistence mechanism
+  </Card>
+  <Card title="Virtual Filesystem" icon="folder-tree" href="/technical/virtual-filesystem">
+    File operations in window contexts
+  </Card>
+  <Card title="Development" icon="code" href="/technical/contributing">
+    Build applications using WindowManager
+  </Card>
+</CardGroup>

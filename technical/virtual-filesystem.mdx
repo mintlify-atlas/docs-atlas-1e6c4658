@@ -1,0 +1,1006 @@
+---
+title: 'Virtual Filesystem (VFS)'
+description: 'POSIX-like in-memory filesystem with IndexedDB integration roadmap'
+---
+
+# Virtual Filesystem (VFS)
+
+The Virtual Filesystem provides a POSIX-like file and directory abstraction in browser memory. It enables applications to work with files and folders using familiar Unix-style paths and operations.
+
+## Architecture
+
+### Core Data Structures
+
+<CodeGroup>
+```typescript VFS Type Definitions
+export interface VFSMetadata {
+  size: number;
+  mtime: string; // ISO string
+  owner: string;
+  permissions: string;
+}
+
+export interface VFSFile {
+  type: 'file';
+  content: string;
+  metadata?: VFSMetadata;
+}
+
+export interface VFSFolder {
+  type: 'folder';
+  children: Record<string, VFSNode>;
+  metadata?: VFSMetadata;
+}
+
+export type VFSNode = VFSFile | VFSFolder;
+```
+</CodeGroup>
+
+### VFS Interface
+
+<CodeGroup>
+```typescript IVFS Interface
+export interface IVFS {
+  init(): void;
+  resolvePath(cwd: string, path: string): string;
+  getNode(path: string): VFSNode | null;
+  getChildren(path: string): Record<string, VFSNode> | null;
+  touch(path: string, name: string): Promise<void>;
+  mkdir(path: string, name: string): Promise<void>;
+  rm(path: string, name: string): Promise<boolean>;
+  rename(path: string, oldName: string, newName: string): Promise<void>;
+  move(oldPath: string, newPath: string): Promise<void>;
+  copy(sourcePath: string, destPath: string): Promise<void>;
+  writeFile(path: string, content: string): Promise<void>;
+  moveToTrash(path: string): Promise<void>;
+  restoreFromTrash(name: string): Promise<void>;
+  search(basePath: string, query: string, recursive?: boolean): Promise<string[]>;
+  getSize(path: string): number;
+  exists(path: string): boolean;
+}
+```
+</CodeGroup>
+
+## Initialization
+
+### Root Structure
+
+VFS creates a Unix-like root structure on initialization:
+
+<CodeGroup>
+```typescript VFS Init
+export const VFS: IVFS = {
+  init(): void {
+    const rootPath = '/';
+    const homePath = CONFIG.FS.HOME;
+
+    // Build root structure
+    const root: VFSFolder = {
+      type: 'folder',
+      children: {
+        bin: { type: 'folder', children: {} },
+        etc: {
+          type: 'folder',
+          children: {
+            hostname: { 
+              type: 'file', 
+              content: 'Debian-CDE' 
+            },
+            motd: { 
+              type: 'file', 
+              content: 'Welcome to Debian CDE Workstation' 
+            },
+            'os-release': {
+              type: 'file',
+              content: 'PRETTY_NAME="Debian GNU/Linux CDE Edition"\n' +
+                       'NAME="Debian GNU/Linux"\nID=debian',
+            },
+            passwd: {
+              type: 'file',
+              content: 'root:x:0:0:root:/root:/bin/bash\n' +
+                       'victx:x:1000:1000:victx:/home/victxrlarixs:/bin/bash',
+            },
+          },
+        },
+        usr: {
+          type: 'folder',
+          children: {
+            bin: { type: 'folder', children: {} },
+            lib: { type: 'folder', children: {} },
+            src: { type: 'folder', children: {} },
+          },
+        },
+        var: { type: 'folder', children: {} },
+        tmp: { type: 'folder', children: {} },
+        home: {
+          type: 'folder',
+          children: {
+            victxrlarixs: (filesystemData as any)[homePath],
+          },
+        },
+      },
+    };
+
+    rootNode = root;
+    flatten(rootPath, rootNode);
+
+    syncDynamicContent(); // Non-blocking
+    logger.log(
+      '[VFS] Initialized with System Root, entries:', 
+      Object.keys(fsMap).length
+    );
+  }
+};
+```
+</CodeGroup>
+
+### Filesystem Flattening
+
+The nested structure is flattened into a Map for O(1) lookups:
+
+<CodeGroup>
+```typescript Flatten Operation
+const fsMap: Record<string, VFSNode> = {};
+
+function flatten(basePath: string, node: VFSNode): void {
+  // Ensure metadata exists
+  if (!node.metadata) {
+    node.metadata = {
+      size: node.type === 'file' ? node.content.length : 0,
+      mtime: new Date().toISOString(),
+      owner: 'victx',
+      permissions: node.type === 'folder' ? 
+        'rwxr-xr-x' : 'rw-r--r--',
+    };
+  }
+
+  // Add to flat map
+  fsMap[basePath] = node;
+  
+  // Recursively flatten children
+  if (node.type === 'folder') {
+    for (const [name, child] of Object.entries(node.children)) {
+      const fullPath = basePath + name + 
+        (child.type === 'folder' ? '/' : '');
+      flatten(fullPath, child);
+    }
+  }
+}
+```
+</CodeGroup>
+
+This provides O(1) path resolution instead of tree traversal:
+
+```typescript
+// O(1) lookup
+getNode(path: string): VFSNode | null {
+  return fsMap[path] || null;
+}
+
+// vs O(n) tree traversal
+function findNode(path: string): VFSNode | null {
+  const parts = path.split('/');
+  let current = rootNode;
+  for (const part of parts) {
+    if (!current.children[part]) return null;
+    current = current.children[part];
+  }
+  return current;
+}
+```
+
+## Path Resolution
+
+### Unix-Style Path Handling
+
+<CodeGroup>
+```typescript Path Resolution
+resolvePath(cwd: string, path: string): string {
+  // Handle tilde expansion
+  if (path.startsWith('~')) {
+    path = CONFIG.FS.HOME + path.slice(1);
+  }
+  
+  // Convert relative to absolute
+  if (!path.startsWith('/')) {
+    path = cwd + (cwd.endsWith('/') ? '' : '/') + path;
+  }
+
+  const parts = path.split('/').filter(Boolean);
+  const resolved: string[] = [];
+
+  for (const part of parts) {
+    if (part === '.') continue;      // Current directory
+    if (part === '..') {             // Parent directory
+      resolved.pop();
+      continue;
+    }
+    resolved.push(part);
+  }
+
+  return '/' + resolved.join('/') + 
+    (path.endsWith('/') && resolved.length > 0 ? '/' : '');
+}
+```
+
+```typescript Usage Examples
+// Tilde expansion
+VFS.resolvePath('/tmp', '~/Desktop/file.txt')
+// => '/home/victxrlarixs/Desktop/file.txt'
+
+// Relative path
+VFS.resolvePath('/home/victxrlarixs', 'Desktop/file.txt')
+// => '/home/victxrlarixs/Desktop/file.txt'
+
+// Parent directory
+VFS.resolvePath('/home/victxrlarixs/Desktop', '../Documents')
+// => '/home/victxrlarixs/Documents/'
+
+// Current directory
+VFS.resolvePath('/home/victxrlarixs', './file.txt')
+// => '/home/victxrlarixs/file.txt'
+```
+</CodeGroup>
+
+## File Operations
+
+### Create File (touch)
+
+<CodeGroup>
+```typescript Touch Operation
+async touch(path: string, name: string): Promise<void> {
+  const dirPath = path.endsWith('/') ? path : path + '/';
+  const node = this.getNode(dirPath);
+  
+  if (node?.type === 'folder') {
+    const newFile: VFSFile = {
+      type: 'file',
+      content: '',
+      metadata: {
+        size: 0,
+        mtime: new Date().toISOString(),
+        owner: 'victx',
+        permissions: 'rw-r--r--',
+      },
+    };
+    
+    node.children[name] = newFile;
+    fsMap[dirPath + name] = newFile;
+
+    // Update folder mtime
+    if (node.metadata) {
+      node.metadata.mtime = new Date().toISOString();
+    }
+
+    logger.log(`[VFS] touch: ${dirPath}${name}`);
+    dispatchChange(dirPath);
+  }
+}
+```
+
+```typescript Usage
+await VFS.touch('/home/victxrlarixs/Desktop/', 'newfile.txt');
+```
+</CodeGroup>
+
+### Create Directory (mkdir)
+
+<CodeGroup>
+```typescript Mkdir Operation
+async mkdir(path: string, name: string): Promise<void> {
+  const dirPath = path.endsWith('/') ? path : path + '/';
+  const node = this.getNode(dirPath);
+  
+  if (node?.type === 'folder') {
+    const newFolder: VFSFolder = {
+      type: 'folder',
+      children: {},
+      metadata: {
+        size: 0,
+        mtime: new Date().toISOString(),
+        owner: 'victx',
+        permissions: 'rwxr-xr-x',
+      },
+    };
+    
+    node.children[name] = newFolder;
+    fsMap[dirPath + name + '/'] = newFolder;
+
+    // Update parent mtime
+    if (node.metadata) {
+      node.metadata.mtime = new Date().toISOString();
+    }
+
+    logger.log(`[VFS] mkdir: ${dirPath}${name}/`);
+    dispatchChange(dirPath);
+  }
+}
+```
+
+```typescript Usage
+await VFS.mkdir('/home/victxrlarixs/', 'Projects');
+```
+</CodeGroup>
+
+### Remove (rm)
+
+<CodeGroup>
+```typescript Remove Operation
+async rm(path: string, name: string): Promise<boolean> {
+  const dirPath = path.endsWith('/') ? path : path + '/';
+  const node = this.getNode(dirPath);
+  
+  if (node?.type === 'folder' && node.children[name]) {
+    const item = node.children[name];
+    const fullPath = dirPath + name + 
+      (item.type === 'folder' ? '/' : '');
+    
+    delete fsMap[fullPath];
+    delete node.children[name];
+    
+    logger.log(`[VFS] rm: ${fullPath}`);
+    dispatchChange(dirPath);
+    return true;
+  }
+  return false;
+}
+```
+
+```typescript Usage
+const removed = await VFS.rm(
+  '/home/victxrlarixs/Desktop/', 
+  'oldfile.txt'
+);
+if (removed) {
+  console.log('File removed successfully');
+}
+```
+</CodeGroup>
+
+### Rename
+
+<CodeGroup>
+```typescript Rename Operation
+async rename(
+  path: string, 
+  oldName: string, 
+  newName: string
+): Promise<void> {
+  const dirPath = path.endsWith('/') ? path : path + '/';
+  const node = this.getNode(dirPath);
+  
+  if (node?.type === 'folder' && node.children[oldName]) {
+    const item = node.children[oldName];
+    const oldPath = dirPath + oldName + 
+      (item.type === 'folder' ? '/' : '');
+    const newPath = dirPath + newName + 
+      (item.type === 'folder' ? '/' : '');
+
+    node.children[newName] = item;
+    delete node.children[oldName];
+
+    fsMap[newPath] = item;
+    delete fsMap[oldPath];
+
+    logger.log(`[VFS] rename: ${oldPath} -> ${newPath}`);
+    dispatchChange(dirPath);
+  }
+}
+```
+
+```typescript Usage
+await VFS.rename(
+  '/home/victxrlarixs/Desktop/', 
+  'oldname.txt',
+  'newname.txt'
+);
+```
+</CodeGroup>
+
+### Write File
+
+<CodeGroup>
+```typescript Write Operation
+async writeFile(path: string, content: string): Promise<void> {
+  const node = this.getNode(path);
+  
+  if (node && node.type === 'file') {
+    node.content = content;
+    
+    if (node.metadata) {
+      node.metadata.size = content.length;
+      node.metadata.mtime = new Date().toISOString();
+    }
+    
+    logger.log(`[VFS] writeFile: ${path}`);
+    
+    // Update parent directory mtime
+    const parts = path.split('/').filter(Boolean);
+    parts.pop();
+    const parentPath = '/' + parts.join('/') + 
+      (parts.length > 0 ? '/' : '');
+    const parent = this.getNode(parentPath);
+    if (parent?.metadata) {
+      parent.metadata.mtime = new Date().toISOString();
+    }
+
+    dispatchChange(parentPath);
+  }
+}
+```
+
+```typescript Usage
+await VFS.writeFile(
+  '/home/victxrlarixs/Desktop/notes.txt',
+  'Hello, World!'
+);
+```
+</CodeGroup>
+
+### Move
+
+<CodeGroup>
+```typescript Move Operation
+async move(oldPath: string, newPath: string): Promise<void> {
+  const node = this.getNode(oldPath);
+  if (!node) return;
+
+  // Get old parent
+  const oldParts = oldPath.split('/').filter(Boolean);
+  const name = oldParts.pop()!;
+  const oldParentPath = '/' + oldParts.join('/') + 
+    (oldParts.length > 0 ? '/' : '');
+  const oldParent = this.getNode(oldParentPath);
+
+  // Get new parent
+  const newParts = newPath.split('/').filter(Boolean);
+  const newName = newParts.pop()!;
+  const newParentPath = '/' + newParts.join('/') + 
+    (newParts.length > 0 ? '/' : '');
+  const newParent = this.getNode(newParentPath);
+
+  if (oldParent?.type === 'folder' && 
+      newParent?.type === 'folder') {
+    // Remove from old parent
+    delete oldParent.children[name];
+    delete fsMap[oldPath];
+
+    // Add to new parent
+    newParent.children[newName] = node;
+    fsMap[newPath] = node;
+
+    // Update nested paths if folder
+    if (node.type === 'folder') {
+      const updateMap = (base: string, n: VFSNode) => {
+        if (n.type === 'folder') {
+          for (const [cName, child] of Object.entries(n.children)) {
+            const cp = base + cName + 
+              (child.type === 'folder' ? '/' : '');
+            const oldCp = oldPath + cp.slice(newPath.length);
+            delete fsMap[oldCp];
+            fsMap[cp] = child;
+            updateMap(cp, child);
+          }
+        }
+      };
+      updateMap(newPath, node);
+    }
+
+    logger.log(`[VFS] move: ${oldPath} -> ${newPath}`);
+    dispatchChange(oldParentPath);
+    dispatchChange(newParentPath);
+  }
+}
+```
+
+```typescript Usage
+await VFS.move(
+  '/home/victxrlarixs/Desktop/file.txt',
+  '/home/victxrlarixs/Documents/file.txt'
+);
+```
+</CodeGroup>
+
+### Copy
+
+<CodeGroup>
+```typescript Copy Operation
+async copy(sourcePath: string, destPath: string): Promise<void> {
+  const sourceNode = this.getNode(sourcePath);
+  if (!sourceNode) {
+    logger.error(`[VFS] copy: source not found: ${sourcePath}`);
+    return;
+  }
+
+  // Deep clone the node
+  const cloneNode = (node: VFSNode): VFSNode => {
+    if (node.type === 'file') {
+      return {
+        type: 'file',
+        content: node.content,
+        metadata: node.metadata
+          ? { ...node.metadata, mtime: new Date().toISOString() }
+          : undefined,
+      };
+    } else {
+      const cloned: VFSFolder = {
+        type: 'folder',
+        children: {},
+        metadata: node.metadata
+          ? { ...node.metadata, mtime: new Date().toISOString() }
+          : undefined,
+      };
+      for (const [name, child] of Object.entries(node.children)) {
+        cloned.children[name] = cloneNode(child);
+      }
+      return cloned;
+    }
+  };
+
+  const clonedNode = cloneNode(sourceNode);
+
+  // Get destination parent
+  const destParts = destPath.split('/').filter(Boolean);
+  const destName = destParts.pop()!;
+  const destParentPath = '/' + destParts.join('/') + 
+    (destParts.length > 0 ? '/' : '');
+  const destParent = this.getNode(destParentPath);
+
+  if (destParent?.type === 'folder') {
+    destParent.children[destName] = clonedNode;
+    const finalPath = destPath + 
+      (clonedNode.type === 'folder' ? '/' : '');
+
+    // Recursively add to fsMap
+    const addToMap = (base: string, n: VFSNode) => {
+      fsMap[base] = n;
+      if (n.type === 'folder') {
+        for (const [cName, child] of Object.entries(n.children)) {
+          const cp = base + cName + 
+            (child.type === 'folder' ? '/' : '');
+          addToMap(cp, child);
+        }
+      }
+    };
+    addToMap(finalPath, clonedNode);
+
+    logger.log(`[VFS] copy: ${sourcePath} -> ${destPath}`);
+    dispatchChange(destParentPath);
+  }
+}
+```
+
+```typescript Usage
+await VFS.copy(
+  '/home/victxrlarixs/Desktop/file.txt',
+  '/home/victxrlarixs/Desktop/file-copy.txt'
+);
+```
+</CodeGroup>
+
+## Trash Functionality
+
+### Move to Trash
+
+<CodeGroup>
+```typescript Move to Trash
+async moveToTrash(path: string): Promise<void> {
+  const trashPath = CONFIG.FS.TRASH;
+  
+  // Ensure trash folder exists
+  if (!this.getNode(trashPath)) {
+    const parts = trashPath.split('/').filter(Boolean);
+    const trashName = parts.pop()!;
+    const parentPath = '/' + parts.join('/') + 
+      (parts.length > 0 ? '/' : '');
+    await this.mkdir(parentPath, trashName);
+  }
+
+  const parts = path.split('/').filter(Boolean);
+  const name = parts.pop()!;
+  await this.move(path, trashPath + name);
+}
+```
+
+```typescript Usage
+await VFS.moveToTrash(
+  '/home/victxrlarixs/Desktop/unwanted.txt'
+);
+```
+</CodeGroup>
+
+### Restore from Trash
+
+<CodeGroup>
+```typescript Restore from Trash
+async restoreFromTrash(name: string): Promise<void> {
+  const trashItemPath = CONFIG.FS.TRASH + name;
+  const restorePath = CONFIG.FS.DESKTOP + name;
+  await this.move(trashItemPath, restorePath);
+}
+```
+
+```typescript Usage
+await VFS.restoreFromTrash('unwanted.txt');
+```
+</CodeGroup>
+
+## Search Operations
+
+<CodeGroup>
+```typescript Search Implementation
+async search(
+  basePath: string, 
+  query: string, 
+  recursive = false
+): Promise<string[]> {
+  const results: string[] = [];
+  const lowerQuery = query.toLowerCase();
+
+  const searchDir = (path: string) => {
+    const children = this.getChildren(path);
+    if (!children) return;
+
+    for (const [name, node] of Object.entries(children)) {
+      const fullPath = path + name + 
+        (node.type === 'folder' ? '/' : '');
+
+      // Match filename
+      if (name.toLowerCase().includes(lowerQuery)) {
+        results.push(fullPath);
+      }
+
+      // Search file content
+      if (node.type === 'file' && 
+          node.content.toLowerCase().includes(lowerQuery)) {
+        if (!results.includes(fullPath)) {
+          results.push(fullPath);
+        }
+      }
+
+      // Recurse into folders
+      if (recursive && node.type === 'folder') {
+        searchDir(fullPath);
+      }
+    }
+  };
+
+  searchDir(basePath);
+  return results;
+}
+```
+
+```typescript Usage Examples
+// Non-recursive search in directory
+const results = await VFS.search(
+  '/home/victxrlarixs/Desktop/',
+  'report'
+);
+
+// Recursive search from home
+const allResults = await VFS.search(
+  '/home/victxrlarixs/',
+  'config',
+  true
+);
+```
+</CodeGroup>
+
+## Utility Operations
+
+### Get Size
+
+<CodeGroup>
+```typescript Size Calculation
+getSize(path: string): number {
+  const node = this.getNode(path);
+  if (!node) return 0;
+
+  if (node.type === 'file') {
+    return node.content.length;
+  }
+
+  // Recursive size for folders
+  const calcSize = (n: VFSNode): number => {
+    if (n.type === 'file') return n.content.length;
+    let sum = 0;
+    for (const child of Object.values(n.children)) {
+      sum += calcSize(child);
+    }
+    return sum;
+  };
+
+  return calcSize(node);
+}
+```
+
+```typescript Usage
+const size = VFS.getSize('/home/victxrlarixs/Documents/');
+console.log(`Directory size: ${size} bytes`);
+```
+</CodeGroup>
+
+### Check Existence
+
+<CodeGroup>
+```typescript Exists Check
+exists(path: string): boolean {
+  return !!this.getNode(path);
+}
+```
+
+```typescript Usage
+if (VFS.exists('/home/victxrlarixs/Desktop/file.txt')) {
+  console.log('File exists');
+}
+```
+</CodeGroup>
+
+### Get Children
+
+<CodeGroup>
+```typescript Get Children
+getChildren(path: string): Record<string, VFSNode> | null {
+  const node = this.getNode(path);
+  return node?.type === 'folder' ? node.children : null;
+}
+```
+
+```typescript Usage
+const children = VFS.getChildren(
+  '/home/victxrlarixs/Desktop/'
+);
+if (children) {
+  for (const [name, node] of Object.entries(children)) {
+    console.log(`${name} (${node.type})`);
+  }
+}
+```
+</CodeGroup>
+
+## Event System
+
+### Change Notifications
+
+<CodeGroup>
+```typescript Event Dispatch
+function dispatchChange(path: string): void {
+  window.dispatchEvent(
+    new CustomEvent('cde-fs-change', {
+      detail: { path },
+    })
+  );
+}
+```
+
+```typescript Event Listener
+window.addEventListener('cde-fs-change', (event) => {
+  const { path } = event.detail;
+  console.log(`Filesystem changed: ${path}`);
+  // Update UI, refresh file manager, etc.
+});
+```
+</CodeGroup>
+
+## Dynamic Content Sync
+
+Large files are loaded asynchronously after initialization:
+
+<CodeGroup>
+```typescript Lazy Content Loading
+async function syncDynamicContent(): Promise<void> {
+  const [
+    readme,
+    gettingStarted,
+    xemacsGuide,
+    // ... more documentation
+  ] = await Promise.all([
+    import('../../../README.md?raw'),
+    import('../../../docs/user-guide/getting-started.md?raw'),
+    import('../../../docs/user-guide/xemacs.md?raw'),
+    // ...
+  ]);
+
+  // Update VFS with loaded content
+  const readmePath = CONFIG.FS.HOME + 'README.md';
+  const readmeFile = fsMap[readmePath] as VFSFile;
+  if (readmeFile?.type === 'file') {
+    readmeFile.content = readme.default;
+  }
+
+  // Sync JSON data
+  const fontsPath = CONFIG.FS.HOME + 'settings/fonts.json';
+  if (fsMap[fontsPath]) {
+    (fsMap[fontsPath] as VFSFile).content = 
+      JSON.stringify(fontsData, null, 2);
+  }
+
+  logger.log('[VFS] Dynamic content synced');
+}
+```
+</CodeGroup>
+
+This keeps the initial bundle small by deferring large file loads.
+
+## Global Exposure
+
+<CodeGroup>
+```typescript Global Access
+declare global {
+  interface Window {
+    VirtualFS: IVFS;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.VirtualFS = VFS;
+}
+```
+
+```javascript Usage in Console
+// List files in home directory
+const children = window.VirtualFS.getChildren(
+  '/home/victxrlarixs/'
+);
+console.log(Object.keys(children));
+
+// Read a file
+const node = window.VirtualFS.getNode(
+  '/home/victxrlarixs/README.md'
+);
+if (node?.type === 'file') {
+  console.log(node.content);
+}
+```
+</CodeGroup>
+
+## Future: IndexedDB Integration
+
+The VFS is designed to integrate with IndexedDB for persistent storage:
+
+<CodeGroup>
+```typescript Planned IndexedDB Schema
+const DB_NAME = 'cde-time-capsule';
+const FILESYSTEM_STORE = 'filesystem';
+
+// Planned structure
+interface StoredVFSNode {
+  path: string;        // Primary key
+  type: 'file' | 'folder';
+  content?: string;    // For files
+  children?: string[]; // For folders (array of paths)
+  metadata: VFSMetadata;
+}
+```
+</CodeGroup>
+
+This will enable:
+- User-created files persisting across sessions
+- Larger file support
+- Offline file access
+- Progressive sync on load
+
+## Performance Considerations
+
+### O(1) Lookups
+
+Flattened map provides constant-time access:
+
+```typescript
+// Fast: O(1)
+const node = fsMap['/home/victxrlarixs/Desktop/file.txt'];
+
+// vs Slow: O(depth)
+function traverse(path: string): VFSNode | null {
+  let current = root;
+  for (const part of path.split('/')) {
+    if (!current.children[part]) return null;
+    current = current.children[part];
+  }
+  return current;
+}
+```
+
+### Memory Usage
+
+Typical VFS memory footprint:
+- ~1000 files/folders: ~500KB
+- ~10000 entries: ~5MB
+- Content stored as strings (UTF-16)
+
+### Batch Operations
+
+Avoid individual operations in loops:
+
+<CodeGroup>
+```typescript Inefficient
+// Bad: Multiple event dispatches
+for (const file of files) {
+  await VFS.touch(dir, file);
+  // Each touch() dispatches 'cde-fs-change'
+}
+```
+
+```typescript Efficient
+// Good: Batch then notify once
+for (const file of files) {
+  // Directly manipulate fsMap
+  const newFile: VFSFile = { type: 'file', content: '' };
+  node.children[file] = newFile;
+  fsMap[dir + file] = newFile;
+}
+// Single notification
+dispatchChange(dir);
+```
+</CodeGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Always Use Trailing Slashes for Directories">
+    Ensure directory paths end with `/` for consistency:
+    
+    ```typescript
+    // Good
+    await VFS.mkdir('/home/victxrlarixs/', 'Projects');
+    const children = VFS.getChildren('/home/victxrlarixs/');
+    
+    // Bad: May cause lookups to fail
+    await VFS.mkdir('/home/victxrlarixs', 'Projects');
+    const children = VFS.getChildren('/home/victxrlarixs');
+    ```
+  </Accordion>
+  
+  <Accordion title="Use resolvePath for User-Provided Paths">
+    Always normalize paths before operations:
+    
+    ```typescript
+    const userPath = '../Documents/file.txt';
+    const cwd = '/home/victxrlarixs/Desktop/';
+    const fullPath = VFS.resolvePath(cwd, userPath);
+    // => '/home/victxrlarixs/Documents/file.txt'
+    
+    const node = VFS.getNode(fullPath);
+    ```
+  </Accordion>
+  
+  <Accordion title="Check Existence Before Operations">
+    Prevent errors by checking first:
+    
+    ```typescript
+    if (VFS.exists('/home/victxrlarixs/Desktop/file.txt')) {
+      await VFS.rm('/home/victxrlarixs/Desktop/', 'file.txt');
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Listen for Change Events">
+    Keep UI synchronized with filesystem:
+    
+    ```typescript
+    window.addEventListener('cde-fs-change', (event) => {
+      const { path } = event.detail;
+      if (path === currentDirectory) {
+        refreshFileList();
+      }
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="sitemap" href="/technical/architecture">
+    Overall system architecture and design
+  </Card>
+  <Card title="Storage" icon="database" href="/technical/storage">
+    Future persistent VFS storage
+  </Card>
+  <Card title="Window Manager" icon="window-maximize" href="/technical/window-manager">
+    Window management for file applications
+  </Card>
+  <Card title="Development" icon="code" href="/technical/contributing">
+    Build applications using VFS
+  </Card>
+</CardGroup>

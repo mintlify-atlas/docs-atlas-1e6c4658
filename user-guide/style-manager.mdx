@@ -1,0 +1,738 @@
+---
+title: 'Style Manager'
+description: 'Customize Time Capsule with 76 authentic CDE color palettes and 168 original XPM backdrops'
+icon: 'palette'
+---
+
+<Info>
+  The Style Manager provides complete visual customization of your CDE desktop environment with authentic Motif palettes and original backdrop patterns.
+</Info>
+
+## Opening Style Manager
+
+<CardGroup cols={3}>
+  <Card title="Front Panel" icon="mouse-pointer">
+    Click the Style Manager icon (color palette) in the Front Panel
+  </Card>
+  
+  <Card title="Keyboard" icon="keyboard">
+    Press `Ctrl+Alt+S` from anywhere
+  </Card>
+  
+  <Card title="Desktop Menu" icon="bars">
+    Right-click desktop → Tools → Style Manager
+  </Card>
+</CardGroup>
+
+## Style Manager Modules
+
+The Style Manager is organized into specialized modules (`stylemanager.ts:21-44`):
+
+<Tabs>
+  <Tab title="Color">
+    Choose from **76 authentic Motif CDE palettes** sourced from historical CDE systems.
+    
+    <Note>
+      Palettes are loaded from `cde_palettes.json` containing authentic color combinations from the Common Desktop Environment.
+    </Note>
+  </Tab>
+  
+  <Tab title="Backdrop">
+    Select from **168 original XPM backdrop patterns** that are dynamically rendered with your chosen palette colors.
+    
+    <Tip>
+      XPM backdrops are resolution-independent patterns that adapt to your color scheme!
+    </Tip>
+  </Tab>
+  
+  <Tab title="Font">
+    Adjust font family, size, weight, and other typography settings for the entire interface.
+  </Tab>
+  
+  <Tab title="Keyboard">
+    Configure keyboard behavior including repeat rate, delay, and beep settings.
+  </Tab>
+  
+  <Tab title="Mouse">
+    Customize mouse double-click speed, acceleration, and button handedness.
+  </Tab>
+  
+  <Tab title="Beep">
+    Configure system sound volume, tone frequency, and duration.
+  </Tab>
+  
+  <Tab title="Window">
+    Set window focus behavior (click-to-focus or point-to-focus) and drag settings.
+  </Tab>
+  
+  <Tab title="Screen">
+    Display settings including screensaver timeout and lock screen options.
+  </Tab>
+  
+  <Tab title="Startup">
+    Choose session management: resume previous session or start fresh.
+  </Tab>
+</Tabs>
+
+## Color Palettes
+
+### Understanding CDE Palettes
+
+Each palette contains 8 carefully coordinated colors (`theme.ts:40-47`):
+
+```typescript
+// CDE ColorSet mapping:
+// 0: Accent/Active (Titlebar)
+// 1: Background (Window)  
+// 2: Workspace Background
+// 3: Secondary Accent
+// 4-7: Additional UI variations
+```
+
+### Popular Palettes
+
+<AccordionGroup>
+  <Accordion title="Light Themes" icon="sun">
+    **LateSummer** (Default)
+    - Classic CDE appearance
+    - Warm neutral tones
+    - Excellent readability
+    
+    **Alpine**
+    - Cool blue-gray palette
+    - Professional appearance
+    - Easy on eyes
+    
+    **Platinum**
+    - Classic gray theme
+    - Traditional CDE look
+    - Timeless design
+  </Accordion>
+  
+  <Accordion title="Dark Themes" icon="moon">
+    **Coalmine**
+    - Very dark palette
+    - High contrast
+    - Excellent for night use
+    
+    **Midnight**
+    - Dark blue theme
+    - Reduced eye strain
+    - Modern aesthetic
+    
+    **Charcoal**
+    - Medium-dark gray
+    - Balanced contrast
+    - Professional look
+  </Accordion>
+  
+  <Accordion title="Colorful Themes" icon="palette">
+    **Broica**
+    - Warm brown tones
+    - Earthy feel
+    - Unique character
+    
+    **Camouflage**
+    - Earth tone palette
+    - Natural colors
+    - Subdued but distinctive
+    
+    **SantaFe**
+    - Southwestern colors
+    - Warm terracotta
+    - Bold choice
+  </Accordion>
+</AccordionGroup>
+
+### Applying a Palette
+
+<Steps>
+  <Step title="Open Color Module">
+    Click "Color" in the Style Manager main window
+  </Step>
+  
+  <Step title="Browse Palettes">
+    Scroll through the list of 76 available palettes. Use arrow keys for quick navigation.
+  </Step>
+  
+  <Step title="Preview">
+    Click any palette to see an instant preview. Colors update immediately.
+  </Step>
+  
+  <Step title="Apply">
+    Click the "Apply" button to save your choice. The palette is persisted to settings.
+  </Step>
+</Steps>
+
+### How Palettes Work
+
+The palette system generates a complete color scheme (`theme.ts:26-84`):
+
+```typescript
+const newTheme: Record<string, string> = {
+  '--window-color': windowBg,
+  '--topbar-color': windowBg,
+  '--titlebar-color': titlebarBg,
+  '--titlebar-text-color': getContrastColor(titlebarBg),
+  '--text-color': getContrastColor(windowBg),
+  '--border-light': windowShades.light,
+  '--border-dark': windowShades.dark,
+  // ... and many more CSS variables
+};
+```
+
+<Note>
+  Color shades are algorithmically generated using `getCdeShades()` from `colorutils.ts` to create authentic 3D beveled effects.
+</Note>
+
+## Backdrop Patterns
+
+### Understanding XPM Backdrops
+
+Backdrops are authentic XPM (X PixMap) files that are:
+- **Dynamic**: Rendered with your current palette colors
+- **Scalable**: Resolution-independent patterns
+- **Authentic**: Original CDE backdrop files
+- **Cached**: Rendered once and cached for performance
+
+### Categories
+
+<CardGroup cols={2}>
+  <Card title="Geometric Patterns" icon="shapes">
+    - Afternoon
+    - Ankh
+    - BrickWall
+    - Corduroy
+    - Inlay
+  </Card>
+  
+  <Card title="Textures" icon="texture">
+    - BrokenIce
+    - Canvas
+    - Carpet
+    - Concave
+    - SkyDark
+  </Card>
+  
+  <Card title="Tech/Circuit" icon="microchip">
+    - CircuitBoards
+    - LatticeBig
+    - LatticeMed
+    - Lattice
+    - WaterDrops
+  </Card>
+  
+  <Card title="Artistic" icon="paintbrush">
+    - Crochet
+    - FlowersVenus
+    - Leaves
+    - OceanFloor
+    - Paver
+  </Card>
+</CardGroup>
+
+### Backdrop Implementation
+
+Backdrops are managed by the `BackdropModule` (`backdrop.ts:24-189`):
+
+<CodeGroup>
+
+```typescript backdrop.ts:58-75
+private async applyXpm(body: HTMLElement): Promise<void> {
+  const path = this.settings.value;
+
+  // Check if this is the default backdrop and preload is available
+  if (path === CONFIG.BACKDROP.DEFAULT_BACKDROP) {
+    const { getPreloadedBackdrop } = await import('../../boot/backdrop-preloader');
+    const preloadedDataUrl = await getPreloadedBackdrop();
+
+    if (preloadedDataUrl) {
+      body.style.backgroundImage = `url('${preloadedDataUrl}')`;
+      body.style.backgroundRepeat = 'repeat';
+      body.style.backgroundSize = 'auto';
+      return;
+    }
+  }
+
+  // Fallback to normal XPM loading
+  const dataUrl = await loadXpmBackdropCached(path, true);
+}
+```
+
+```typescript backdrop.ts:139-144
+public clearCache(): void {
+  clearGlobalXpmCache();
+  logger.log('[BackdropModule] XPM cache cleared');
+}
+```
+
+</CodeGroup>
+
+<Warning>
+  When you change color palettes, the XPM cache is automatically cleared and backdrops are re-rendered with the new colors. This may take a moment for complex patterns.
+</Warning>
+
+### Applying a Backdrop
+
+<Steps>
+  <Step title="Open Backdrop Module">
+    Click "Backdrop" in Style Manager
+  </Step>
+  
+  <Step title="Browse Patterns">
+    Scroll through 168 available backdrops with thumbnail previews
+  </Step>
+  
+  <Step title="Preview">
+    Click a backdrop to see it applied to your desktop immediately
+  </Step>
+  
+  <Step title="Apply & Save">
+    Click "Apply" to save your choice permanently
+  </Step>
+</Steps>
+
+<Tip>
+  Complex backdrops may take 1-2 seconds to render. The system uses caching to ensure subsequent loads are instant.
+</Tip>
+
+## Font Customization
+
+### Available Options
+
+The Font module (`font.ts`) provides control over:
+
+<Tabs>
+  <Tab title="Font Family">
+    Choose from web-safe font stacks:
+    - **Sans-serif**: Modern, clean (default)
+    - **Monospace**: Code-friendly
+    - **Serif**: Traditional, readable
+  </Tab>
+  
+  <Tab title="Font Size">
+    Adjust base font size:
+    - **Small**: 12px
+    - **Medium**: 14px (default)
+    - **Large**: 16px
+    - **Extra Large**: 18px
+    
+    <Note>
+      All UI elements scale proportionally with the base font size.
+    </Note>
+  </Tab>
+  
+  <Tab title="Font Weight">
+    Control text boldness:
+    - **Normal**: 400
+    - **Medium**: 500
+    - **Semi-bold**: 600
+    - **Bold**: 700
+  </Tab>
+  
+  <Tab title="Line Height">
+    Adjust spacing between lines for readability (1.2 - 2.0)
+  </Tab>
+</Tabs>
+
+### Font Presets
+
+Quick apply font combinations:
+
+```typescript
+Small & Compact    - 12px, tight spacing
+Medium & Balanced  - 14px, normal spacing (default)
+Large & Readable   - 16px, comfortable spacing  
+XL & Accessible    - 18px, generous spacing
+```
+
+## Mouse Settings
+
+<AccordionGroup>
+  <Accordion title="Double-Click Speed" icon="mouse">
+    Adjust the maximum time between clicks for a double-click:
+    - **Fast**: 200ms
+    - **Medium**: 300ms (default)
+    - **Slow**: 500ms
+    
+    Implementation: `mouse.ts`
+  </Accordion>
+  
+  <Accordion title="Pointer Acceleration" icon="gauge">
+    Control mouse sensitivity and speed:
+    - **None**: 1.0x (no acceleration)
+    - **Low**: 1.2x
+    - **Medium**: 1.5x (default)
+    - **High**: 2.0x
+    
+    Applied to window dragging and icon positioning.
+  </Accordion>
+  
+  <Accordion title="Button Configuration" icon="hand-pointer">
+    - **Left-handed**: Swap primary/secondary buttons
+    - **Right-handed**: Default configuration
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+  Mouse acceleration affects window dragging (`windowmanager.ts:258-278`) and desktop icon positioning (`desktop.ts:267-298`).
+</Info>
+
+## Keyboard Settings
+
+Configure keyboard behavior (`keyboard.ts`):
+
+### Key Repeat
+
+- **Repeat Rate**: How fast keys repeat when held (chars/sec)
+- **Repeat Delay**: Delay before repeat starts (milliseconds)
+- **Enable/Disable**: Toggle key repeat entirely
+
+### Beep Settings
+
+- **Beep on Error**: Audio feedback for errors
+- **Beep Volume**: Loudness level
+
+## Window Behavior
+
+<Tabs>
+  <Tab title="Focus Mode" icon="bullseye">
+    **Click to Focus** (Default)
+    - Click window to activate
+    - Explicit focus control
+    - Familiar behavior
+    
+    **Point to Focus**
+    - Hover to activate
+    - Automatic focus
+    - Power user preference
+    
+    Set via `data-focus-mode` attribute (`windowmanager.ts:403-418`)
+  </Tab>
+  
+  <Tab title="Window Dragging" icon="hand">
+    **Opaque Dragging** (Default)
+    - Window content visible while dragging
+    - More resource intensive
+    - Better visual feedback
+    
+    **Wireframe Dragging**
+    - Only outline visible
+    - Better performance
+    - Classic X11 behavior
+    
+    Controlled by `data-opaque-drag` attribute (`windowmanager.ts:296-299`)
+  </Tab>
+  
+  <Tab title="Raise on Focus" icon="arrow-up">
+    - **Enabled**: Window comes to front when focused
+    - **Disabled**: Focus without reordering
+    
+    Affects z-index management in `windowmanager.ts`
+  </Tab>
+</Tabs>
+
+## Creating Your Perfect Setup
+
+### The 3-Step Method
+
+<Steps>
+  <Step title="Choose Your Base Palette">
+    Select a palette that matches your:
+    - **Environment**: Bright room → light theme, Dark room → dark theme
+    - **Time of day**: Daytime → light, Evening → medium, Night → dark
+    - **Personal taste**: Professional, colorful, minimal
+  </Step>
+  
+  <Step title="Match a Backdrop">
+    Find a backdrop that complements your palette:
+    - **Subtle patterns**: Less distracting (Canvas, Afternoon)
+    - **Bold patterns**: More character (CircuitBoards, BrokenIce)
+    - **Textures**: Natural feel (Carpet, Corduroy)
+  </Step>
+  
+  <Step title="Adjust Typography">
+    Set font size based on:
+    - **Screen size**: Larger screen → smaller font OK
+    - **Viewing distance**: Far away → larger font
+    - **Eyesight**: Adjust for comfort
+  </Step>
+</Steps>
+
+### Popular Combinations
+
+<CardGroup cols={2}>
+  <Card title="Classic CDE" icon="desktop">
+    - Palette: **LateSummer**
+    - Backdrop: **Afternoon**
+    - Font: **Medium (14px)**
+    - Feel: Authentic 1990s CDE
+  </Card>
+  
+  <Card title="Dark Mode Pro" icon="moon">
+    - Palette: **Coalmine**
+    - Backdrop: **BrokenIce**
+    - Font: **Medium (14px)**
+    - Feel: Modern dark theme
+  </Card>
+  
+  <Card title="Warm & Cozy" icon="fire">
+    - Palette: **Broica**
+    - Backdrop: **Carpet**
+    - Font: **Medium (14px)**
+    - Feel: Comfortable earth tones
+  </Card>
+  
+  <Card title="Tech Aesthetic" icon="microchip">
+    - Palette: **Charcoal**
+    - Backdrop: **CircuitBoards**
+    - Font: **Large (16px)**
+    - Feel: Cyberpunk vibes
+  </Card>
+  
+  <Card title="Minimal & Clean" icon="circle">
+    - Palette: **Alpine**
+    - Backdrop: **Canvas**
+    - Font: **Medium (14px)**
+    - Feel: Distraction-free
+  </Card>
+  
+  <Card title="High Contrast" icon="adjust">
+    - Palette: **Midnight**
+    - Backdrop: **SkyDark**
+    - Font: **Large (16px)**
+    - Feel: Accessibility-focused
+  </Card>
+</CardGroup>
+
+## Sharing Themes
+
+<Tip>
+  Use the "Share Theme" feature to generate a URL containing your complete customization!
+</Tip>
+
+Your theme can be shared via URL parameters including:
+- Selected palette ID
+- Backdrop choice
+- Font settings
+- Other Style Manager options
+
+Implementation: Look for the "Share Theme" icon on desktop or in Style Manager.
+
+## Persistence & Storage
+
+<Info>
+  All Style Manager settings are automatically saved to browser localStorage and restored on next visit.
+</Info>
+
+Settings storage (`settingsmanager.ts`):
+
+```typescript
+// Settings structure
+theme: {
+  colors: Record<string, string>,  // CSS variables
+  paletteId: string,                // Current palette ID
+  fonts: Record<string, string>,    // Font settings
+  backdrop: {
+    type: 'xpm',
+    value: string                   // Backdrop file path
+  }
+}
+```
+
+### Settings Lifecycle
+
+<Steps>
+  <Step title="Load">
+    Settings loaded from localStorage on init (`stylemanager.ts:63-92`)
+  </Step>
+  
+  <Step title="Apply">
+    CSS variables set on document root, backdrop rendered
+  </Step>
+  
+  <Step title="Save">
+    Changes persisted immediately to localStorage (`stylemanager.ts:357-368`)
+  </Step>
+  
+  <Step title="Restore">
+    Settings reloaded on page refresh
+  </Step>
+</Steps>
+
+## Advanced Customization
+
+### Manual Color Editing
+
+<Warning>
+  Advanced users can manually edit individual color values, but this breaks palette integrity. Custom colors are saved separately from palette ID.
+</Warning>
+
+The Color module exposes individual color pickers for all CSS variables:
+- Window backgrounds
+- Titlebar colors
+- Border shades
+- Text colors
+- Active/inactive states
+
+### Custom Backdrop Rendering
+
+XPM backdrops are rendered with your palette colors using `xpm-renderer.ts`:
+
+```typescript
+// Backdrops use palette colors to create dynamic patterns
+const colors = {
+  background: getComputedStyle(document.documentElement)
+    .getPropertyValue('--window-color'),
+  foreground: getComputedStyle(document.documentElement)
+    .getPropertyValue('--titlebar-color'),
+  // ... palette colors mapped to XPM color definitions
+}
+```
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+Alt+S` | Open Style Manager |
+| `↑/↓` | Navigate palettes/backdrops |
+| `Enter` | Apply selected option |
+| `Tab` | Switch between sections |
+| `Esc` | Close Style Manager |
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Backdrop not rendering" icon="image">
+    **Symptoms**: White or solid color background instead of pattern
+    
+    **Solutions**:
+    - Wait 2-3 seconds for complex patterns to render
+    - Check browser console for XPM parsing errors
+    - Try a different backdrop to isolate issue
+    - Clear XPM cache (happens automatically on palette change)
+  </Accordion>
+  
+  <Accordion title="Colors look wrong after palette change" icon="palette">
+    **Cause**: XPM cache needs clearing
+    
+    **Solution**: The backdrop module automatically clears cache when palette changes (`stylemanager.ts:158-162`). Wait a moment for re-render.
+  </Accordion>
+  
+  <Accordion title="Settings not saving" icon="save">
+    **Possible causes**:
+    - Browser in private/incognito mode (localStorage disabled)
+    - Browser storage quota exceeded
+    - Browser privacy settings blocking storage
+    
+    **Solutions**:
+    - Use normal browsing mode
+    - Clear some browser storage
+    - Check browser privacy settings
+  </Accordion>
+  
+  <Accordion title="Font changes not visible" icon="font">
+    **Cause**: Font changes require full UI refresh
+    
+    **Solution**: Click "Apply" button and wait for changes to propagate through all UI elements.
+  </Accordion>
+</AccordionGroup>
+
+## Performance Considerations
+
+<Note>
+  The Style Manager is optimized for performance with several caching mechanisms.
+</Note>
+
+### XPM Rendering Cache
+
+- Rendered backdrops are cached in memory
+- Cache cleared only when palette changes
+- Reduces re-rendering overhead
+- Implementation: `xpm-renderer.ts`
+
+### Backdrop Preloading
+
+Default backdrop is preloaded during boot sequence (`backdrop-preloader.ts`) to eliminate loading delay on first display.
+
+### CSS Variable Performance
+
+Color changes use CSS custom properties for instant updates without DOM manipulation:
+
+```typescript
+document.documentElement.style.setProperty('--window-color', newColor);
+```
+
+## Technical Architecture
+
+<CodeGroup>
+
+```typescript stylemanager.ts:21-44
+export class StyleManager {
+  public theme: ThemeModule;
+  public font: FontModule;
+  public mouse: MouseModule;
+  public keyboard: KeyboardModule;
+  public beep: BeepModule;
+  public backdrop: BackdropModule;
+  public windowBehavior: WindowModule;
+  public screen: ScreenModule;
+  public startup: StartupModule;
+
+  constructor() {
+    this.theme = new ThemeModule();
+    this.font = new FontModule();
+    this.mouse = new MouseModule();
+    // ... initialize all modules
+  }
+}
+```
+
+```typescript theme.ts:26-39
+public applyCdePalette(id: string): void {
+  const palette = this.cdePalettes.find((p) => p.id === id);
+  if (!palette) {
+    logger.warn(`[ThemeModule] Palette not found: ${id}`);
+    return;
+  }
+
+  // Store the current palette ID for sharing
+  this.currentPaletteId = id;
+
+  const c = palette.colors;
+  // Map CDE ColorSet to CSS variables
+  const titlebarBg = c[0];
+  const windowBg = c[1];
+  // ... generate complete theme
+}
+```
+
+</CodeGroup>
+
+## Related Documentation
+
+<CardGroup cols={3}>
+  <Card title="Keyboard Shortcuts" icon="keyboard" href="/user-guide/keyboard-shortcuts">
+    Complete shortcuts reference
+  </Card>
+  
+  <Card title="Tips & Tricks" icon="lightbulb" href="/user-guide/tips-and-tricks">
+    Customization secrets and workflows
+  </Card>
+  
+  <Card title="Getting Started" icon="rocket" href="/quickstart">
+    Initial setup guide
+  </Card>
+  
+  <Card title="Workspaces" icon="grid-2x2" href="/user-guide/workspaces">
+    Organize with virtual desktops
+  </Card>
+  
+  <Card title="Accessibility" icon="universal-access" href="/user-guide/keyboard-shortcuts#accessibility-shortcuts">
+    High contrast and font sizing
+  </Card>
+  
+  <Card title="PWA Installation" icon="download" href="/pwa-installation">
+    Install as standalone app
+  </Card>
+</CardGroup>

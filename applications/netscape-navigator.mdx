@@ -1,0 +1,355 @@
+---
+title: Netscape Navigator
+description: Authentic 1990s web browser with modern web compatibility
+---
+
+Netscape Navigator brings the iconic web browsing experience of the 1990s to Time Capsule. With authentic loading animations, the classic "N" logo with shooting stars, and a combination of internal vintage pages and modern web access, it captures the feel of early internet exploration.
+
+## Features
+
+- **Authentic UI**: 1990s Netscape interface design
+- **Animated Logo**: Rotating "N" with shooting stars during page loads
+- **Internal Pages**: Curated vintage-style content
+- **Modern Web Access**: Browse today's internet through Web Archive
+- **History Management**: Back/forward navigation
+- **Bookmarks**: Save favorite pages
+- **Loading Animations**: Multi-stage progress indicator
+
+## Opening Netscape
+
+Launch from the CDE panel. Netscape opens to the "What's New" page, showcasing featured content.
+
+## Navigation
+
+### Toolbar Buttons
+
+| Button | Action | Description |
+|--------|--------|-------------|
+| **← Back** | Go back | Return to previous page |
+| **→ Forward** | Go forward | Advance to next page (if available) |
+| **🏠 Home** | Go home | Return to Welcome page |
+| **🔄 Reload** | Refresh | Reload current page |
+| **✖ Stop** | Stop loading | Cancel page load |
+
+### Location Bar
+
+The Netscape Location bar displays the current URL.
+
+**To navigate**:
+1. Click the location field
+2. Type a URL or search term
+3. Press `Enter`
+
+Examples:
+```
+debian.org           → Loads Debian website
+gnu.org              → Loads GNU website  
+hello world          → DuckDuckGo search
+net-search           → Opens DuckDuckGo
+```
+
+### Directory Buttons
+
+Quick access buttons below the toolbar:
+
+- **What's New**: Featured content and updates
+- **What's Cool**: Interesting sites and projects
+- **Destinations**: Curated links
+- **Net Search**: Search the web (DuckDuckGo)
+- **People**: Contact information
+- **Software**: Available downloads
+
+Active button is highlighted.
+
+## Internal Pages
+
+Netscape includes several vintage-style internal pages:
+
+### about:welcome
+Welcome page with introduction to Time Capsule and Netscape features.
+
+### about:whats-new
+Featured content, updates, and highlighted pages.
+
+### about:whats-cool
+Showcase of interesting websites and projects.
+
+### about:destinations
+Curated list of useful destinations.
+
+### about:net-search
+Redirects to DuckDuckGo search engine.
+
+### about:people
+Directory and contact pages.
+
+### about:software
+Available software and tools.
+
+Each page is styled with 1990s HTML aesthetics:
+- Simple layouts
+- Basic formatting
+- Colorful headers
+- Clickable links with `[number]` notation
+
+## Loading Pages
+
+### Internal Pages
+
+Internal pages load with animation:
+
+1. **Connecting...** (10%)
+2. **Host contacted. Waiting for reply...** (30%)
+3. **Receiving data...** (60%)
+4. **Loading page...** (80%)
+5. **Transferring data...** (95%)
+6. **Document: Done** (100%)
+
+### External Websites
+
+Modern websites load through Web Archive:
+
+```
+https://web.archive.org/web/2d_/[your-url]
+```
+
+This provides:
+- Access to current internet
+- Vintage browsing experience
+- Fallback for sites that block iframes
+
+**Loading Stages**:
+1. Looking for site...
+2. Connect: Contacting host...
+3. Waiting for reply...
+4. Document: Done
+
+### Loading Animation
+
+During page loads:
+- **N Logo rotates**: Classic Netscape branding
+- **Stars shoot across**: From logo to right
+- **Progress bar**: Fills from 0% to 100%
+- **Status text**: Updates with current stage
+- **Stop button**: Enabled to cancel load
+
+## Menubar
+
+### File Menu
+
+- **New Window**: Open new Netscape window
+- **Open Location**: Focus location bar (`Ctrl+L`)
+- **Open File**: (Not supported in browser environment)
+- **Save Page**: Download current page as HTML
+- **Print**: Print current page
+- **Close**: Close Netscape window
+
+### Edit Menu
+
+- **Find in Page**: Search for text on current page
+
+### View Menu
+
+- **View Source**: Open page source in new window
+- **Reload**: Refresh current page
+- **Load Images**: (Placeholder - images load by default)
+- **Toolbar**: Toggle toolbar visibility
+- **Location Bar**: Toggle location bar visibility
+- **Directory Buttons**: Toggle directory bar visibility
+
+### Go Menu
+
+- **Back**: Previous page
+- **Forward**: Next page
+- **Home**: Welcome page
+- **Stop**: Stop loading
+
+### Bookmarks Menu
+
+- **Add Bookmark**: Save current page
+- **View Bookmarks**: (Shows saved bookmarks)
+- Saved bookmarks appear below menu separator
+
+### Window Menu
+
+- **New Window**: Open additional Netscape window
+- **Netscape Navigator**: Focus current window
+
+### Help Menu
+
+- **About Netscape**: Version and info
+- **Help Contents**: User guide
+
+## History
+
+Netscape maintains browsing history:
+
+**Go Menu → Recent Pages**:
+- Last 10 visited pages
+- Current page shown in **bold**
+- Click to jump to any page
+- Newest pages at top
+
+Example:
+```
+What's New - Netscape
+Debian -- The Universal Operating System
+GNU Operating System
+DuckDuckGo
+```
+
+## Bookmarks
+
+### Adding Bookmarks
+
+1. Navigate to page
+2. Go to `Bookmarks` → `Add Bookmark`
+3. Page title is saved
+4. Bookmark appears in Bookmarks menu
+
+**Status bar confirms**: "Bookmark added: [Page Title]"
+
+### Using Bookmarks
+
+- Open Bookmarks menu
+- Click saved bookmark
+- Page loads immediately
+
+## Search Functionality
+
+### Web Search
+
+Type any search term in the location bar:
+```
+javaScript tutorials
+```
+Press Enter → Opens DuckDuckGo search results
+
+### Find in Page
+
+1. Go to `Edit` → `Find in Page`
+2. Enter search term
+3. Press OK
+4. Matches are highlighted in yellow
+5. Status bar shows: `Found: "search-term"`
+
+## Status Bar
+
+Bottom bar displays:
+
+- Connection status
+- Loading messages
+- Page load progress
+- Error messages
+- User action confirmations
+
+Examples:
+```
+Document: Done
+Connecting to debian.org...
+Receiving data from gnu.org...
+Bookmark added: GNU Operating System
+```
+
+## Progress Indicator
+
+Progress bar fills during page loads:
+- **0%**: Initial request
+- **30%**: Connection established
+- **60%**: Receiving data
+- **100%**: Page complete
+
+Resets to 0% after load completes.
+
+## Vintage vs Modern Content
+
+### Internal Pages (Vintage)
+
+- Styled with 1990s HTML
+- Instant loading
+- No external dependencies
+- Part of Time Capsule filesystem
+- Numbered links: `[1]Home [2]About [3]Contact`
+
+### External Websites (Modern)
+
+- Loaded via iframe through Web Archive
+- Full modern web compatibility
+- May show archive banner
+- Some sites may block embedding
+- Fallback: Search instead of direct load
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+L` | Focus location bar |
+| `Alt+←` | Go back |
+| `Alt+→` | Go forward |
+| `F5` | Reload page |
+| `Ctrl+F` | Find in page |
+| `Ctrl+S` | Save page |
+| `Ctrl+P` | Print |
+
+## Tips and Tricks
+
+<AccordionGroup>
+  <Accordion title="Fast Navigation">
+    Quick ways to browse:
+    
+    - Use directory buttons for common destinations
+    - Type partial URLs (omit http://)
+    - Search by typing any non-URL text
+    - Use Alt+← and Alt+→ for history
+  </Accordion>
+
+  <Accordion title="Search vs Browse">
+    Location bar is smart:
+    
+    - **URL**: `debian.org`, `gnu.org/software`
+    - **Search**: `linux tutorials`, `javascript docs`
+    - **Internal**: `about:welcome`, `net-search`
+    
+    No dots or slashes = search query
+  </Accordion>
+
+  <Accordion title="Loading Animation">
+    Watch for authentic Netscape experience:
+    
+    - Spinning "N" logo
+    - Shooting stars (appear every 100ms)
+    - Progress bar advance
+    - Multi-stage status messages
+    
+    Click Stop button to cancel loading.
+  </Accordion>
+
+  <Accordion title="History Management">
+    Navigate efficiently:
+    
+    - Back button: Previous page
+    - Forward button: Next in history (after going back)
+    - Go menu: Jump to any recent page
+    - Current page shows in bold
+  </Accordion>
+
+  <Accordion title="External Site Compatibility">
+    Some sites may not display correctly:
+    
+    - Web Archive adds banner at top
+    - Some sites block iframe embedding
+    - JavaScript-heavy sites may have issues
+    
+    Workaround: Search for content instead of direct URL
+  </Accordion>
+</AccordionGroup>
+
+## Source Code
+
+Netscape Navigator is implemented in:
+- `/src/scripts/features/netscape.ts`: Core browser logic (516 lines)
+- `/src/data/netscape-pages.json`: Internal page content
+- Multi-stage loading animation with progress tracking
+- History manager with back/forward navigation
+- Web Archive integration for modern web access
+- Bookmark system with menu integration

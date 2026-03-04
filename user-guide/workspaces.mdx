@@ -1,0 +1,371 @@
+---
+title: 'Workspaces'
+description: 'Master the 4 virtual workspaces for better organization and productivity in Time Capsule'
+icon: 'grid-2x2'
+---
+
+<Info>
+  Time Capsule provides 4 virtual workspaces to help you organize your applications and workflow. Think of them as separate desktops that you can switch between instantly.
+</Info>
+
+## What are Workspaces?
+
+Workspaces are virtual desktops that allow you to organize different applications and tasks. Each workspace can have its own set of open windows, but they all share the same settings, files, and desktop customizations.
+
+<Card title="Key Benefits" icon="lightbulb">
+  - **Organization**: Keep different projects or tasks separated
+  - **Focus**: Reduce clutter by spreading windows across workspaces
+  - **Efficiency**: Switch between contexts without closing applications
+  - **Productivity**: Maintain multiple workflows simultaneously
+</Card>
+
+## The Workspace Pager
+
+The workspace pager is located in the Front Panel at the bottom of your screen. It displays 4 buttons representing each workspace:
+
+- **One** - Workspace 1
+- **Two** - Workspace 2  
+- **Three** - Workspace 3
+- **Four** - Workspace 4
+
+The active workspace is highlighted with a different visual state.
+
+### Workspace Preview
+
+<Tip>
+  Hover your mouse over any workspace button to see a real-time miniature preview of that workspace!
+</Tip>
+
+The preview shows:
+- **Application icons** for all open windows
+- **Window positions** and relative sizes
+- **Window count** at the bottom
+- Visual indication if workspace is empty
+
+This feature is implemented in `workspace-preview.ts:66-96` and provides instant visual feedback without switching workspaces.
+
+## Switching Between Workspaces
+
+### Using the Mouse
+
+Simply click any workspace button in the pager to switch to that workspace instantly.
+
+### Using Keyboard Shortcuts
+
+<AccordionGroup>
+  <Accordion title="Workspace Shortcuts" icon="keyboard">
+    | Shortcut | Action |
+    |----------|--------|
+    | `Ctrl+Alt+1` | Switch to Workspace 1 |
+    | `Ctrl+Alt+2` | Switch to Workspace 2 |
+    | `Ctrl+Alt+3` | Switch to Workspace 3 |
+    | `Ctrl+Alt+4` | Switch to Workspace 4 |
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  These shortcuts are registered in `accessibility.ts:202-214` and provide the fastest way to navigate between workspaces.
+</Note>
+
+### Using the Desktop Context Menu
+
+Right-click on the desktop background to access the context menu, which includes workspace switching options under the "Workspaces" section (`desktop.ts:613-644`).
+
+## Window Workspace Assignment
+
+### How It Works
+
+When you open an application:
+
+1. The window is automatically assigned to the **current workspace** (`windowmanager.ts:560-561`)
+2. The window receives a `data-workspace` attribute with the workspace ID
+3. A `data-was-opened="true"` flag marks it as having been opened
+
+### Workspace Persistence
+
+Windows remain in their assigned workspace even when you switch away:
+
+- Windows in other workspaces are **hidden** but remain open
+- When you return to a workspace, all windows are **restored** to their previous state
+- Window positions, sizes, and states are **preserved**
+
+<Warning>
+  Windows do not move between workspaces automatically. Each window stays in the workspace where it was opened.
+</Warning>
+
+## Organizing Your Workflow
+
+### By Task Type
+
+<CardGroup cols={2}>
+  <Card title="Workspace 1: Development" icon="code">
+    - XEmacs for editing code
+    - Terminal Lab for commands
+    - File Manager for project files
+  </Card>
+  
+  <Card title="Workspace 2: Documentation" icon="book">
+    - Netscape Navigator for web research
+    - Man Viewer for documentation
+    - XEmacs for notes
+  </Card>
+  
+  <Card title="Workspace 3: Communication" icon="message">
+    - Email client (future)
+    - Calendar for scheduling
+    - Messaging (future)
+  </Card>
+  
+  <Card title="Workspace 4: System Tools" icon="wrench">
+    - Style Manager for customization
+    - Process Monitor
+    - System utilities
+  </Card>
+</CardGroup>
+
+### By Project
+
+Dedicate each workspace to a different project:
+
+- **Workspace 1**: Project Alpha files and applications
+- **Workspace 2**: Project Beta files and applications  
+- **Workspace 3**: Project Gamma files and applications
+- **Workspace 4**: General tasks and utilities
+
+### By Focus Level
+
+- **Workspace 1**: Deep focus - single maximized application
+- **Workspace 2**: Active work - multiple related windows
+- **Workspace 3**: Reference materials - read-only content
+- **Workspace 4**: Background tasks - monitoring tools
+
+## Advanced Features
+
+### Independent Window Sets
+
+Each workspace maintains its own z-index stack and window focus management. This means:
+
+- The active window in Workspace 1 doesn't affect Workspace 2
+- Each workspace has its own window layering order
+- Focus management is workspace-specific
+
+### Shared Resources
+
+All workspaces share:
+
+<Tabs>
+  <Tab title="Settings">
+    - Color palettes (76 available)
+    - Backdrop patterns (168 available)
+    - Font sizes and styles
+    - Mouse and keyboard settings
+  </Tab>
+  
+  <Tab title="Files">
+    - Virtual filesystem (VFS)
+    - Desktop icons
+    - Home directory contents
+    - Saved documents
+  </Tab>
+  
+  <Tab title="Applications">
+    - Application definitions
+    - System utilities
+    - Style Manager customizations
+    - Front Panel configuration
+  </Tab>
+</Tabs>
+
+### Workspace Switching Implementation
+
+The workspace switching mechanism (`windowmanager.ts:583-646`) follows this process:
+
+1. **Hide Current Workspace**: All visible windows are hidden and marked with `data-was-opened="true"`
+2. **Update State**: Current workspace ID is updated
+3. **Show Target Workspace**: Windows with matching workspace ID and `data-was-opened="true"` are displayed
+4. **Update UI**: Pager buttons are updated to reflect active workspace
+
+## Productivity Tips
+
+<Steps>
+  <Step title="Use All 4 Workspaces">
+    Don't limit yourself to one workspace. Spread your work across all four for maximum organization.
+  </Step>
+  
+  <Step title="Develop a Consistent System">
+    Create an organization system that makes sense for your workflow and stick to it.
+  </Step>
+  
+  <Step title="Master the Keyboard Shortcuts">
+    `Ctrl+Alt+1-4` is much faster than clicking. Practice until it becomes muscle memory.
+  </Step>
+  
+  <Step title="Keep Workspaces Focused">
+    Each workspace should have a clear purpose. Avoid mixing unrelated tasks.
+  </Step>
+  
+  <Step title="Regular Cleanup">
+    Periodically review all workspaces and close windows you're no longer using.
+  </Step>
+</Steps>
+
+## Example Workflows
+
+### Web Developer Workflow
+
+```text
+Workspace 1: Code Editor
+  - XEmacs with HTML/CSS/JavaScript files
+  - Split view for multiple files
+
+Workspace 2: Terminal & Testing  
+  - Terminal Lab for build commands
+  - Local server monitoring
+
+Workspace 3: Browser & Preview
+  - Netscape Navigator for testing
+  - Documentation reference
+
+Workspace 4: File Management
+  - File Manager for assets
+  - Version control operations
+```
+
+### Writer Workflow
+
+```text
+Workspace 1: Writing
+  - XEmacs in focus mode
+  - Single maximized window
+
+Workspace 2: Research
+  - Netscape Navigator with references
+  - Multiple research tabs
+
+Workspace 3: Notes & Planning
+  - XEmacs with outline
+  - Calendar for deadlines
+
+Workspace 4: Organization
+  - File Manager for document management
+  - System tools
+```
+
+### Student Workflow
+
+```text
+Workspace 1: Assignments
+  - XEmacs for writing papers
+  - Active work in progress
+
+Workspace 2: Research & Reading
+  - Netscape Navigator for online resources
+  - Man Viewer for technical docs
+
+Workspace 3: Terminal Learning
+  - Terminal Lab with tutorial
+  - Practice commands
+
+Workspace 4: File Organization
+  - File Manager for assignment files
+  - Calendar for due dates
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't find a window" icon="magnifying-glass">
+    Check all 4 workspaces - the window might be on a different workspace. Use the hover preview feature to quickly scan all workspaces.
+  </Accordion>
+  
+  <Accordion title="Workspace appears empty" icon="ghost">
+    This is normal if you haven't opened any applications in that workspace yet. Open an application to populate it.
+  </Accordion>
+  
+  <Accordion title="Keyboard shortcuts not working" icon="keyboard">
+    Make sure you're pressing all three keys: `Ctrl+Alt+Number`. The shortcuts are implemented in `accessibility.ts:202-214`.
+  </Accordion>
+  
+  <Accordion title="Windows disappearing when switching" icon="eye-slash">
+    This is expected behavior. Windows in other workspaces are hidden but not closed. They'll reappear when you return to their workspace.
+  </Accordion>
+</AccordionGroup>
+
+## Technical Details
+
+<CodeGroup>
+
+```typescript desktop.ts:618-643
+// Workspace switching via context menu
+{
+  label: '--- Workspaces ---',
+  header: true,
+  action: async () => {},
+},
+{
+  label: 'Workspace 1',
+  icon: '/icons/system/system-workspaces-pages-manager.png',
+  action: async () => {
+    if (window.WindowManager?.switchWorkspace) 
+      window.WindowManager.switchWorkspace('1');
+  },
+},
+// ... Similar entries for Workspaces 2-4
+```
+
+```typescript windowmanager.ts:583-595
+function switchWorkspace(id: string): void {
+  if (id === currentWorkspace) return;
+
+  AudioManager.click();
+  logger.log(`[WindowManager] Switching from workspace ${currentWorkspace} to ${id}`);
+
+  const windows = document.querySelectorAll('.window, .cde-retro-modal');
+
+  // First pass: Hide all windows of current workspace
+  windows.forEach((win) => {
+    const el = win as HTMLElement;
+    const winWorkspace = el.getAttribute('data-workspace');
+    // ... hiding logic
+  });
+```
+
+```typescript workspace-preview.ts:66-96
+private showPreview(workspaceId: string, pagerItem: HTMLElement): void {
+  if (!this.previewContainer) return;
+
+  this.currentHoveredWorkspace = workspaceId;
+
+  // Get windows in this workspace
+  const windows = this.getWorkspaceWindows(workspaceId);
+
+  // Generate preview with scaled window positions
+  const preview = this.generatePreview(workspaceId, windows);
+
+  // Position preview above pager item
+  const rect = pagerItem.getBoundingClientRect();
+  // ... positioning and display logic
+}
+```
+
+</CodeGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Keyboard Shortcuts" icon="keyboard" href="/user-guide/keyboard-shortcuts">
+    Complete list of workspace and window management shortcuts
+  </Card>
+  
+  <Card title="Window Management" icon="window-maximize" href="/user-guide/tips-and-tricks">
+    Advanced tips for managing windows effectively
+  </Card>
+  
+  <Card title="Getting Started" icon="rocket" href="/quickstart">
+    Initial setup and basic navigation guide
+  </Card>
+  
+  <Card title="Style Manager" icon="palette" href="/user-guide/style-manager">
+    Customize your workspace appearance
+  </Card>
+</CardGroup>

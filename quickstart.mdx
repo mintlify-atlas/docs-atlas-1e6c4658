@@ -1,80 +1,329 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with Time Capsule in 5 minutes - launch applications, customize your desktop, and master essential shortcuts
 ---
 
-## Get started in three steps
+# Quickstart guide
 
-Get your documentation site running locally and make your first customization.
+This guide will get you productive with Time Capsule in 5 minutes. You'll learn the essential interface elements, launch your first applications, and discover the most useful keyboard shortcuts.
 
-### Step 1: Set up your local environment
+<Note>
+Before starting, visit [https://debian.com.mx](https://debian.com.mx) to access Time Capsule. Wait for the boot sequence to complete.
+</Note>
+
+## Understanding the interface
+
+When Time Capsule finishes booting, you'll see four main interface elements:
+
+### The desktop
+
+Your main workspace area where windows and desktop icons appear. You can have multiple windows open simultaneously and arrange them however you like.
+
+### The front panel
+
+The iconic bottom bar containing quick-launch icons for all major applications:
+
+- **Clock** - Current time display
+- **Calendar** - Date and appointments
+- **File Manager** - Browse your virtual filesystem
+- **XEmacs** - Text editor with authentic Emacs keybindings
+- **Terminal Lab** - Interactive Unix command learning
+- **Netscape** - 1990s web browser
+- **Style Manager** - Customize colors and appearance
+- **App Manager** - Access all applications
+- **Process Monitor** - View running processes
+
+### The workspace switcher
+
+Four buttons representing virtual workspaces. Each workspace is a separate desktop where you can organize different tasks. Think of them as four independent work areas.
+
+### The top bar
+
+Displays system information including the hostname, current workspace name, and system clock.
+
+## Your first 5 minutes
+
+<Steps>
+  <Step title="Customize your theme (1 minute)">
+    Let's start by making Time Capsule your own:
+    
+    1. Click the **Style Manager** icon in the front panel (the palette icon)
+    2. Browse through the 76 color palettes
+    3. Click any palette to see it applied instantly
+    4. Try clicking **Backdrop** to browse 168 original XPM patterns
+    5. Click different backdrops to see your desktop transform
+    
+    Popular combinations to try:
+    - **Platinum** palette with **BrokenIce** backdrop (classic look)
+    - **Midnight** palette with **CircuitBoards** backdrop (dark theme)
+    - **Broica** palette with **Afternoon** backdrop (warm tones)
+    
+    <Tip>
+    Found a theme you love? You can export it as a shareable link from Style Manager!
+    </Tip>
+  </Step>
+  
+  <Step title="Write your first file (1 minute)">
+    Time Capsule includes a full-featured text editor with real Emacs keybindings:
+    
+    1. Click the **XEmacs** icon in the front panel
+    2. Type some text in the editor window
+    3. Press `Ctrl+X` then `Ctrl+S` to save
+    4. Enter a filename like `hello.txt`
+    5. Press Enter
+    
+    Your file is now saved in the virtual filesystem!
+    
+    ```text
+    Welcome to Time Capsule!
+    This file is stored in IndexedDB and persists across sessions.
+    ```
+    
+    <Info>
+    All Emacs shortcuts work: `C-x C-s` (save), `C-k` (kill line), `C-y` (yank/paste), `C-s` (search), and more.
+    </Info>
+  </Step>
+  
+  <Step title="Learn Unix commands (2 minutes)">
+    Terminal Lab teaches Unix through 22 interactive lessons:
+    
+    1. Click the **Terminal Lab** icon
+    2. Read the first lesson instructions
+    3. Type the command shown (or press Tab to autocomplete)
+    4. Press Enter to execute
+    5. Watch as you automatically advance to the next lesson
+    
+    Try these commands in the tutorial:
+    ```bash
+    # Lesson 1: Basic navigation
+    pwd
+    ls
+    whoami
+    date
+    ```
+    
+    <Tip>
+    Type `free` at any time to exit tutorial mode and experiment with any Unix command. Type `tutorial` to return to guided lessons.
+    </Tip>
+  </Step>
+  
+  <Step title="Explore virtual workspaces (30 seconds)">
+    CDE's killer feature is four independent workspaces:
+    
+    1. Look at the workspace switcher (four buttons labeled 1-4)
+    2. Click workspace **2**
+    3. Open an application like XEmacs
+    4. Click workspace **1** to go back
+    5. Notice your first workspace is unchanged!
+    
+    Use workspaces to organize tasks:
+    - **Workspace 1** - Main work
+    - **Workspace 2** - Documentation and reference
+    - **Workspace 3** - Communication
+    - **Workspace 4** - Testing and experiments
+    
+    <Info>
+    Keyboard shortcut: `Ctrl+Alt+1` through `Ctrl+Alt+4` to switch workspaces instantly.
+    </Info>
+  </Step>
+  
+  <Step title="Browse the filesystem (30 seconds)">
+    Time Capsule has a complete virtual filesystem:
+    
+    1. Click the **File Manager** icon
+    2. Double-click folders to navigate
+    3. Right-click for context menus
+    4. Find the `hello.txt` file you created earlier
+    5. Double-click to open it in XEmacs
+    
+    The filesystem includes:
+    - `/home/user` - Your home directory
+    - `/usr/share/doc` - Documentation and man pages
+    - `/etc` - System configuration files
+    - `/tmp` - Temporary storage
+  </Step>
+</Steps>
+
+## Essential keyboard shortcuts
+
+Learn these five shortcuts first - they'll make you dramatically more productive:
+
+### 1. Switch workspaces
+
+```
+Ctrl+Alt+1  Switch to workspace 1
+Ctrl+Alt+2  Switch to workspace 2
+Ctrl+Alt+3  Switch to workspace 3
+Ctrl+Alt+4  Switch to workspace 4
+```
+
+### 2. Manage windows
+
+```
+Alt+F4      Close active window
+Alt+F9      Minimize window
+Alt+F10     Maximize/restore window
+Alt+Tab     Switch between windows
+```
+
+### 3. Launch applications
+
+```
+Ctrl+Alt+E  Open XEmacs text editor
+Ctrl+Alt+T  Open Terminal Lab
+Ctrl+Alt+F  Open File Manager
+Ctrl+Alt+S  Open Style Manager
+```
+
+### 4. XEmacs editing
+
+```
+Ctrl+X Ctrl+S  Save file
+Ctrl+X Ctrl+F  Open file
+Ctrl+K         Kill (cut) line
+Ctrl+Y         Yank (paste)
+Ctrl+S         Search forward
+```
+
+### 5. Terminal shortcuts
+
+```
+Ctrl+L  Clear screen
+Ctrl+C  Cancel current command
+Ctrl+A  Move to line start
+Ctrl+E  Move to line end
+Tab     Auto-complete command
+```
+
+<Warning>
+Some shortcuts may conflict with your browser. For the best experience, [install Time Capsule as a PWA](/pwa-installation) to run it in standalone mode.
+</Warning>
+
+## Common tasks
+
+### Create a new file
+
+<Steps>
+  <Step title="Open XEmacs">
+    Click the XEmacs icon or press `Ctrl+Alt+E`
+  </Step>
+  <Step title="Type your content">
+    Start typing immediately - XEmacs is ready
+  </Step>
+  <Step title="Save the file">
+    Press `Ctrl+X` then `Ctrl+S`, enter a filename, press Enter
+  </Step>
+</Steps>
+
+### Organize with folders
+
+<Steps>
+  <Step title="Open File Manager">
+    Click the File Manager icon or press `Ctrl+Alt+F`
+  </Step>
+  <Step title="Create a folder">
+    Right-click in the file list and select "New Folder"
+  </Step>
+  <Step title="Name your folder">
+    Type a name and press Enter
+  </Step>
+  <Step title="Move files">
+    Drag files into your new folder to organize
+  </Step>
+</Steps>
+
+### Change your theme
+
+<Steps>
+  <Step title="Open Style Manager">
+    Click the Style Manager icon or press `Ctrl+Alt+S`
+  </Step>
+  <Step title="Browse palettes">
+    Click through the 76 color options to find your favorite
+  </Step>
+  <Step title="Select a backdrop">
+    Click the Backdrop section and choose from 168 patterns
+  </Step>
+  <Step title="Apply your changes">
+    Changes apply instantly - no save button needed
+  </Step>
+</Steps>
+
+### Install as PWA
+
+<Steps>
+  <Step title="Look for the icon">
+    After boot completes, find the "Install PWA" icon on the desktop
+  </Step>
+  <Step title="Double-click to install">
+    Your browser will show an installation prompt
+  </Step>
+  <Step title="Confirm installation">
+    Click "Install" in your browser's dialog
+  </Step>
+  <Step title="Launch from apps">
+    Time Capsule now appears in your app launcher as a native application
+  </Step>
+</Steps>
+
+<Info>
+See the complete [PWA installation guide](/pwa-installation) for platform-specific instructions and troubleshooting.
+</Info>
+
+## Tips for new users
 
 <AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
+  <Accordion title="Take your time exploring">
+    Don't try to learn everything at once. Spend 10 minutes with each application before moving to the next. The Terminal Lab's 22 lessons are designed to be completed gradually.
   </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
+  
+  <Accordion title="Use the mouse first">
+    If you're new to CDE, start with mouse interactions. Learn keyboard shortcuts after you're comfortable with the interface. Add 2-3 new shortcuts per week.
   </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
+  
+  <Accordion title="You can't break anything">
+    The virtual filesystem is isolated from your computer. Experiment freely! Delete files, try commands, customize themes - everything is safe.
+  </Accordion>
+  
+  <Accordion title="Right-click for context menus">
+    Context menus are everywhere in CDE. Right-click on files, folders, the desktop, window title bars - explore what's available.
+  </Accordion>
+  
+  <Accordion title="Save your work regularly">
+    While the filesystem persists in IndexedDB, it's good practice to save often. Use `Ctrl+X Ctrl+S` in XEmacs frequently.
   </Accordion>
 </AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
+Now that you know the basics, here's how to continue your Time Capsule journey:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Complete Terminal Lab" icon="terminal">
+    Work through all 22 Unix/Linux lessons to build command line proficiency
+  </Card>
+  <Card title="Master XEmacs" icon="keyboard">
+    Learn advanced Emacs keybindings and editing techniques
+  </Card>
+  <Card title="Install as PWA" icon="download" href="/pwa-installation">
+    Get the native app experience with offline support
+  </Card>
+  <Card title="Customize everything" icon="palette">
+    Try all 76 palettes and 168 backdrops to create your perfect theme
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Getting help
+
+If you get stuck:
+
+- Press `F1` for contextual help
+- Check application-specific guides in the documentation
+- Visit the GitHub repository for issues and discussions
+- Explore the Man Page Viewer for Unix command reference
+
+<Tip>
+Your Time Capsule settings, files, and theme preferences are automatically saved in your browser's IndexedDB. They'll be there when you return!
+</Tip>
+
+Ready for the full experience? [Install Time Capsule as a PWA](/pwa-installation) to run it like a native desktop application.

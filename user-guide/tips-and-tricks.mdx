@@ -1,0 +1,754 @@
+---
+title: 'Tips & Tricks'
+description: 'Power user secrets, hidden features, and productivity hacks for Time Capsule'
+icon: 'lightbulb'
+---
+
+<Tip>
+  Master these advanced tips to become a Time Capsule power user and maximize your productivity!
+</Tip>
+
+## Productivity Power-Ups
+
+### Master the Essential Shortcuts
+
+<Steps>
+  <Step title="Workspace Switching">
+    `Ctrl+Alt+1-4` - Switch between workspaces instantly without lifting your hands from the keyboard.
+    
+    **Pro tip**: Practice switching workspaces while keeping mental context. This becomes automatic after ~100 switches.
+  </Step>
+  
+  <Step title="Window Management">
+    - `Ctrl+W` - Close active window
+    - `Ctrl+M` - Minimize to taskbar
+    - Double-click titlebar - Shade window (CDE feature!)
+    
+    **Hidden feature**: Double-clicking a titlebar "rolls up" the window to just the titlebar, saving screen space while keeping it accessible (`windowmanager.ts:823-860`).
+  </Step>
+  
+  <Step title="Application Launching">
+    - `Ctrl+Alt+E` - XEmacs
+    - `Ctrl+Alt+F` - File Manager
+    - `Ctrl+Alt+T` - Terminal Lab
+    - `Ctrl+Alt+S` - Style Manager
+    
+    **Speed trick**: These shortcuts work from anywhere, even with another window focused.
+  </Step>
+</Steps>
+
+### Strategic Workspace Usage
+
+<CardGroup cols={2}>
+  <Card title="The Focus System" icon="bullseye">
+    **Workspace 1**: Deep focus
+    - Single maximized application
+    - No notifications or distractions
+    - Full-screen XEmacs for coding
+    
+    **Workspace 2**: Active multitasking
+    - Multiple related windows
+    - Side-by-side work
+    - Terminal + Editor split
+  </Card>
+  
+  <Card title="The Context System" icon="layer-group">
+    **Workspace 3**: Reference materials
+    - Documentation browser
+    - Man pages viewer
+    - Read-only content
+    
+    **Workspace 4**: Background tasks
+    - Process Monitor
+    - File operations
+    - System utilities
+  </Card>
+</CardGroup>
+
+<Warning>
+  Don't fall into the "one workspace" trap! Using all 4 workspaces dramatically reduces window clutter and context switching overhead.
+</Warning>
+
+## XEmacs Power Techniques
+
+### Lightning-Fast Editing
+
+<Tabs>
+  <Tab title="Kill Ring Mastery" icon="scissors">
+    The kill ring is Emacs's clipboard on steroids:
+    
+    ```text
+    Ctrl+K Ctrl+K    Kill entire line (double-tap)
+    Alt+D            Kill word forward
+    Alt+Backspace    Kill word backward
+    Ctrl+K           Kill to end of line
+    Ctrl+W           Kill region (cut)
+    Alt+W            Copy region (doesn't cut)
+    Ctrl+Y           Yank (paste) last kill
+    Alt+Y            Cycle through kill ring
+    ```
+    
+    **Pro technique**: Kill multiple things in succession, then cycle through them with `Alt+Y` after `Ctrl+Y`.
+  </Tab>
+  
+  <Tab title="Navigation Secrets" icon="route">
+    Move at the speed of thought:
+    
+    ```text
+    Alt+<            Jump to buffer start
+    Alt+>            Jump to buffer end
+    Ctrl+L           Center cursor on screen
+    Ctrl+V           Page down (Vim: Ctrl+F)
+    Alt+V            Page up (Vim: Ctrl+B)
+    
+    Ctrl+A           Line start (vs Home)
+    Ctrl+E           Line end (vs End)
+    Alt+F            Forward word
+    Alt+B            Backward word
+    ```
+    
+    **Why these?** Home/End require hand movement. Ctrl+A/E keep hands on home row.
+  </Tab>
+  
+  <Tab title="Search Mastery" icon="magnifying-glass">
+    Incremental search is incredibly powerful:
+    
+    ```text
+    Ctrl+S           Start incremental search forward
+    Ctrl+S (again)   Jump to next match
+    Ctrl+R           Search backward
+    Ctrl+G           Cancel search
+    Alt+%            Query-replace (with y/n prompts)
+    ```
+    
+    **Hidden feature**: During search, type more characters to refine, or `Ctrl+S` repeatedly to jump through matches.
+  </Tab>
+  
+  <Tab title="Selection Tricks" icon="i-cursor">
+    Emacs calls selections "regions":
+    
+    ```text
+    Ctrl+Space       Set mark (start selection)
+    [Move cursor]    Extend region
+    Ctrl+W           Cut region
+    Alt+W            Copy region
+    Ctrl+Y           Paste
+    
+    Ctrl+X H         Select entire buffer
+    ```
+    
+    **Pro tip**: Set mark with `Ctrl+Space`, navigate to end point with any movement command, then cut/copy.
+  </Tab>
+</Tabs>
+
+### Efficiency Workflows
+
+<AccordionGroup>
+  <Accordion title="The Paragraph Edit" icon="paragraph">
+    1. `Alt+<` - Jump to buffer start
+    2. `Ctrl+S` - Search for text
+    3. `Ctrl+Space` - Set mark
+    4. `Alt+}` - Forward paragraph (or move manually)
+    5. `Ctrl+W` - Kill region
+    6. Rewrite, then `Ctrl+Y` to restore if needed
+  </Accordion>
+  
+  <Accordion title="The Quick Replace" icon="repeat">
+    1. `Alt+<` - Jump to buffer start
+    2. `Alt+%` - Query replace
+    3. Type old text → Enter
+    4. Type new text → Enter
+    5. Press `y` for yes, `n` for no, `!` for "all remaining"
+  </Accordion>
+  
+  <Accordion title="The Save-All Workflow" icon="floppy-disk">
+    Before switching context:
+    1. `Ctrl+X Ctrl+S` - Save current file
+    2. `Ctrl+X Ctrl+C` - Exit XEmacs (prompts for unsaved)
+    3. Or keep XEmacs open and switch workspace
+    
+    **Note**: XEmacs state persists across workspace switches!
+  </Accordion>
+</AccordionGroup>
+
+## Terminal Lab Secrets
+
+### Command Line Superpowers
+
+<CodeGroup>
+
+```bash Navigation Shortcuts
+Ctrl+A           # Jump to line start
+Ctrl+E           # Jump to line end
+Ctrl+U           # Clear entire line
+Ctrl+K           # Delete to end of line
+Ctrl+W           # Delete previous word
+Ctrl+Y           # Paste deleted text (yank)
+
+Alt+B            # Move backward one word
+Alt+F            # Move forward one word
+```
+
+```bash History Mastery
+↑                # Previous command
+↓                # Next command  
+Ctrl+R           # Reverse search history
+!!               # Repeat last command
+!$               # Last argument of previous command
+!^               # First argument of previous command
+!*               # All arguments of previous command
+
+# Example:
+# $ ls /home/victxrlarixs/Documents
+# $ cd !$  →  cd /home/victxrlarixs/Documents
+```
+
+```bash Productivity Tricks
+Tab              # Auto-complete filename/command
+Tab Tab          # Show all completions
+cd -             # Go to previous directory
+mkdir -p a/b/c   # Create nested directories
+
+# Pipes and redirection:
+ls | grep txt    # Filter output
+cat file | wc -l # Count lines
+echo "hi" > file # Overwrite file
+echo "hi" >> file # Append to file
+```
+
+```bash Terminal Lab Specific
+# Complete all 22 lessons for full mastery:
+# Lessons 1-5:   Basic commands (ls, cd, pwd)
+# Lessons 6-10:  File operations (cp, mv, rm)
+# Lessons 11-15: Text processing (cat, grep, wc)
+# Lessons 16-20: System commands (ps, top, df)
+# Lessons 21-22: Advanced topics
+
+help            # Show available commands
+clear           # Clear terminal (or Ctrl+L)
+exit            # Close terminal
+```
+
+</CodeGroup>
+
+### Terminal Workflows
+
+<Steps>
+  <Step title="The Developer Setup">
+    ```bash
+    cd ~/Projects/myapp
+    ls -la                    # Check files
+    cat README.md            # Read docs
+    mkdir -p src/components  # Create structure
+    ```
+  </Step>
+  
+  <Step title="The File Hunter">
+    ```bash
+    cd ~
+    ls -la | grep ".txt"     # Find txt files
+    cat filename.txt         # Read content
+    wc -l filename.txt       # Count lines
+    ```
+  </Step>
+  
+  <Step title="The System Monitor">
+    ```bash
+    ps aux                    # View processes
+    df -h                     # Disk usage
+    uptime                    # System uptime
+    ```
+  </Step>
+</Steps>
+
+## Style Manager Hidden Gems
+
+### Power Combinations
+
+<Tabs>
+  <Tab title="Dark Mode Arsenal" icon="moon">
+    <CardGroup cols={2}>
+      <Card title="Midnight Coder">
+        - Palette: **Coalmine**
+        - Backdrop: **BrokenIce**
+        - Font: **16px Monospace**
+        - Perfect for: Long coding sessions
+      </Card>
+      
+      <Card title="Night Writer">
+        - Palette: **Midnight**
+        - Backdrop: **SkyDark**
+        - Font: **16px Serif**
+        - Perfect for: Writing & reading
+      </Card>
+    </CardGroup>
+  </Tab>
+  
+  <Tab title="Focus Setups" icon="bullseye">
+    <CardGroup cols={2}>
+      <Card title="Zen Mode">
+        - Palette: **Alpine**
+        - Backdrop: **Canvas** (minimal)
+        - Font: **14px Sans**
+        - Perfect for: Deep work
+      </Card>
+      
+      <Card title="Retro Focus">
+        - Palette: **LateSummer**
+        - Backdrop: **Afternoon**
+        - Font: **14px Monospace**
+        - Perfect for: Authentic CDE feel
+      </Card>
+    </CardGroup>
+  </Tab>
+  
+  <Tab title="Aesthetic Themes" icon="palette">
+    <CardGroup cols={2}>
+      <Card title="Cyberpunk">
+        - Palette: **Charcoal**
+        - Backdrop: **CircuitBoards**
+        - Font: **16px Monospace Bold**
+        - Perfect for: Tech vibe
+      </Card>
+      
+      <Card title="Earth Tones">
+        - Palette: **Broica**
+        - Backdrop: **Carpet**
+        - Font: **14px Serif**
+        - Perfect for: Warm, comfortable
+      </Card>
+      
+      <Card title="Southwest">
+        - Palette: **SantaFe**
+        - Backdrop: **Paver**
+        - Font: **14px Sans**
+        - Perfect for: Bold & unique
+      </Card>
+      
+      <Card title="Professional">
+        - Palette: **Platinum**
+        - Backdrop: **Corduroy**
+        - Font: **14px Sans**
+        - Perfect for: Business use
+      </Card>
+    </CardGroup>
+  </Tab>
+</Tabs>
+
+### Quick Theme Switching
+
+<Info>
+  Create "theme presets" for different times of day or moods by memorizing palette names.
+</Info>
+
+**Morning**: LateSummer + Afternoon (energizing)
+**Afternoon**: Alpine + Canvas (focused)
+**Evening**: Broica + Carpet (warm)
+**Night**: Coalmine + BrokenIce (easy on eyes)
+
+<Steps>
+  <Step title="Speed Method">
+    1. `Ctrl+Alt+S` - Open Style Manager
+    2. Arrow keys to navigate palettes
+    3. `Enter` - Apply instantly
+    4. `Esc` - Close
+  </Step>
+</Steps>
+
+## File Manager Pro Techniques
+
+### Speed Navigation
+
+<Tabs>
+  <Tab title="Keyboard First" icon="keyboard">
+    ```text
+    Type first letter    Jump to file starting with that letter
+    Backspace           Parent directory
+    Alt+Home            Home directory
+    Alt+↑               Up one level
+    Enter               Open file/folder
+    F2                  Rename selected
+    F5                  Refresh view
+    ```
+  </Tab>
+  
+  <Tab title="Selection Mastery" icon="check-square">
+    ```text
+    Ctrl+A              Select all
+    Ctrl+C              Copy
+    Ctrl+X              Cut
+    Ctrl+V              Paste
+    Delete              Delete selected
+    
+    Click + Shift+Click  Range select
+    Ctrl+Click          Add/remove from selection
+    ```
+  </Tab>
+  
+  <Tab title="Organization" icon="folder-tree">
+    **Best Practices**:
+    
+    ```
+    ~/Desktop/           - Active work only
+    ~/Documents/         - All documents
+    ~/Projects/          - Code projects
+    ~/Downloads/         - Temporary files
+    
+    Keep Desktop clean: 5 items or fewer
+    Use descriptive folder names
+    Delete unused files weekly
+    ```
+  </Tab>
+</Tabs>
+
+### Power User File Operations
+
+<AccordionGroup>
+  <Accordion title="Batch Operations" icon="layer-group">
+    1. `Ctrl+A` - Select all files in directory
+    2. Right-click → Properties to see total size
+    3. Use context menu for batch operations
+    
+    <Note>
+      Desktop icons can be organized manually. Drag to position, they snap to grid (`desktop.ts:207-218`).
+    </Note>
+  </Accordion>
+  
+  <Accordion title="Context Menu Secrets" icon="bars">
+    Right-click locations have different menus:
+    
+    - **On file**: Open, Copy, Cut, Rename, Properties, Delete
+    - **On folder**: Open, Copy, Cut, Rename, Properties, Delete
+    - **On desktop background**: Paste, Programs, Workspaces, Tools
+    
+    Implementation: `desktop.ts:486-696`
+  </Accordion>
+  
+  <Accordion title="Desktop Icon Grid" icon="border-all">
+    Desktop icons snap to an invisible grid (120px spacing by default):
+    - Drag icons to reposition
+    - Automatically finds nearest grid slot
+    - Prevents overlapping
+    - Positions persist across sessions
+    
+    Code: `desktop.ts:210-265`
+  </Accordion>
+</AccordionGroup>
+
+## Hidden Features & Easter Eggs
+
+<Warning>
+  Some features are experimental or not fully documented. Explore at your own risk!
+</Warning>
+
+### Window Manipulation
+
+<CardGroup cols={2}>
+  <Card title="Window Shading" icon="window-minimize">
+    **Feature**: Double-click any window titlebar to "shade" it
+    
+    **Effect**: Window collapses to just the titlebar, like rolling up a blind
+    
+    **Benefit**: Keep window accessible without taking screen space
+    
+    **Implementation**: `windowmanager.ts:734-778`
+  </Card>
+  
+  <Card title="Point-to-Focus Mode" icon="hand-pointer">
+    **Feature**: Hover over window to focus it (X11 style)
+    
+    **Enable**: Style Manager → Window → Focus follows mouse
+    
+    **Benefit**: No clicking required to focus windows
+    
+    **Implementation**: `windowmanager.ts:403-418`
+  </Card>
+</CardGroup>
+
+### Workspace Previews
+
+<Tip>
+  Hover over workspace buttons to see miniature previews of all open windows! (`workspace-preview.ts:66-96`)
+</Tip>
+
+**Shows**:
+- Application icons for each window
+- Relative window positions
+- Window count
+- Empty workspace indication
+
+**Usage**: Quickly find which workspace has the window you need without switching.
+
+### System Sounds
+
+Time Capsule includes authentic CDE audio feedback (`audiomanager.ts`):
+
+```typescript
+AudioManager.click()         // Button/icon click
+AudioManager.menuOpen()      // Menu opens
+AudioManager.menuClose()     // Menu closes  
+AudioManager.windowOpen()    // Window opens
+AudioManager.windowMinimize() // Window minimizes
+AudioManager.windowMaximize() // Window maximizes
+AudioManager.windowShade()   // Window shaded/unshaded
+```
+
+<Note>
+  Audio feedback can be customized in Style Manager → Beep section.
+</Note>
+
+## Advanced Workflows
+
+### The 4-Workspace Developer
+
+<Steps>
+  <Step title="Workspace 1: Active Coding">
+    - XEmacs maximized
+    - Single file focus
+    - `Ctrl+Alt+1` to return here
+  </Step>
+  
+  <Step title="Workspace 2: Terminal & Build">
+    - Terminal Lab for commands
+    - Watch build output
+    - `Ctrl+Alt+2` for terminal work
+  </Step>
+  
+  <Step title="Workspace 3: Documentation">
+    - Netscape Navigator with docs
+    - Man Viewer for references
+    - `Ctrl+Alt+3` for learning
+  </Step>
+  
+  <Step title="Workspace 4: File Management">
+    - File Manager for project structure
+    - Process Monitor
+    - `Ctrl+Alt+4` for organization
+  </Step>
+</Steps>
+
+### The Writer's Studio
+
+<Tabs>
+  <Tab title="Distraction-Free Writing">
+    1. Switch to Workspace 1: `Ctrl+Alt+1`
+    2. Open XEmacs: `Ctrl+Alt+E`
+    3. Maximize window: Double-click titlebar
+    4. Apply minimal theme: Alpine + Canvas
+    5. Increase font: Style Manager → Font → Large
+    6. Write without distractions!
+  </Tab>
+  
+  <Tab title="Research & Writing">
+    - **WS1**: XEmacs for writing
+    - **WS2**: Netscape for research
+    - **WS3**: Notes and outlines
+    - **WS4**: File organization
+    
+    Workflow:
+    1. Research on WS2
+    2. Take notes on WS3
+    3. Write on WS1
+    4. Organize on WS4
+  </Tab>
+</Tabs>
+
+### The Student's Lab
+
+```text
+Workspace 1: Assignments
+  - XEmacs for essay writing
+  - Save frequently with Ctrl+X Ctrl+S
+  
+Workspace 2: Learning
+  - Terminal Lab completing lessons
+  - 22 interactive tutorials
+  
+Workspace 3: Research
+  - Netscape Navigator for sources
+  - Man Viewer for technical docs
+  
+Workspace 4: Organization  
+  - File Manager for assignment files
+  - Calendar for due dates
+```
+
+## Optimization & Performance
+
+### Keep It Fast
+
+<AccordionGroup>
+  <Accordion title="Window Management" icon="window-restore">
+    - Close unused windows regularly
+    - Use window shading instead of minimizing
+    - Keep 3-5 windows per workspace maximum
+    - Minimize to hide, don't close if you'll reopen
+  </Accordion>
+  
+  <Accordion title="Terminal Performance" icon="terminal">
+    - Terminal Lab has max line limit (CONFIG.TERMINAL.MAX_LINES)
+    - Use `clear` or `Ctrl+L` to clear screen
+    - Long-running commands may affect UI responsiveness
+  </Accordion>
+  
+  <Accordion title="Style Manager" icon="palette">
+    - Complex XPM backdrops take 1-2 seconds to render
+    - Rendered backdrops are cached for reuse
+    - Changing palettes clears cache (re-render required)
+    - Simple backdrops like Canvas are fastest
+  </Accordion>
+  
+  <Accordion title="Desktop Icons" icon="icons">
+    - Keep desktop organized (grid-snapped)
+    - Limit to 10-15 icons for best performance
+    - System icons (XEmacs, Netscape, etc.) are permanent
+    - User files/folders can be deleted
+  </Accordion>
+</AccordionGroup>
+
+### Reduce Lag
+
+<Steps>
+  <Step title="Simplify Visuals">
+    - Use simpler backdrops (Canvas, Afternoon)
+    - Avoid very dark themes (more rendering)
+    - Reduce font size slightly if sluggish
+  </Step>
+  
+  <Step title="Close Background Apps">
+    - Don't keep all apps open in all workspaces
+    - Use one app per workspace when possible
+    - Close File Manager when not in use
+  </Step>
+  
+  <Step title="Browser Optimization">
+    - Clear browser cache occasionally
+    - Disable unused browser extensions
+    - Use PWA mode for best performance
+  </Step>
+</Steps>
+
+## Pro User Checklist
+
+<Tabs>
+  <Tab title="Beginner → Intermediate">
+    - [ ] Know 5+ keyboard shortcuts
+    - [ ] Use at least 2 workspaces regularly
+    - [ ] Customized color palette and backdrop
+    - [ ] Completed Terminal Lab lessons 1-10
+    - [ ] Can navigate File Manager with keyboard
+    - [ ] Understand window minimize/maximize/shade
+  </Tab>
+  
+  <Tab title="Intermediate → Advanced">
+    - [ ] Use all 4 workspaces consistently  
+    - [ ] Know 20+ keyboard shortcuts
+    - [ ] Completed all 22 Terminal Lab lessons
+    - [ ] Created personal theme combinations
+    - [ ] Efficient XEmacs navigation (no mouse)
+    - [ ] Organized file system structure
+  </Tab>
+  
+  <Tab title="Advanced → Master">
+    - [ ] 50+ shortcuts memorized
+    - [ ] Custom workspace workflow system
+    - [ ] XEmacs power user (kill ring, search, etc.)
+    - [ ] Terminal command mastery
+    - [ ] Share themes with others
+    - [ ] Contribute tips to community
+    - [ ] Help others learn Time Capsule
+  </Tab>
+</Tabs>
+
+## Common Mistakes to Avoid
+
+<Warning>
+  **Don't make these rookie errors!**
+</Warning>
+
+### What NOT to Do
+
+| Mistake | Why It's Bad | Better Approach |
+|---------|--------------|------------------|
+| Using only Workspace 1 | Misses 75% of organizational power | Spread work across all 4 workspaces |
+| Clicking everything | Slow and inefficient | Learn keyboard shortcuts gradually |
+| Keeping 20 windows open | Cluttered, hard to find things | Close unused, organize by workspace |
+| Never customizing theme | Missing personality and comfort | Try different palettes, find your style |
+| Ignoring Terminal Lab | Miss Unix knowledge | Complete all 22 lessons over time |
+| Messy desktop | Hard to find files | Keep ≤5 icons, organize into folders |
+| Not saving XEmacs work | Risk losing changes | `Ctrl+X Ctrl+S` frequently |
+| Closing windows repeatedly | Wastes time reopening | Minimize or switch workspaces |
+
+## Share Your Setup
+
+<Tip>
+  Found an amazing theme combination? Share it with the community!
+</Tip>
+
+### How to Share
+
+1. Perfect your customization
+2. Take a screenshot (`PrintScreen` or system tool)
+3. Note your settings:
+   - Palette name
+   - Backdrop name
+   - Font size
+   - Workspace organization
+4. Share on:
+   - GitHub Discussions
+   - Social media with #TimeCapsuleCDE
+   - Project documentation
+
+### Share Theme URL
+
+Use the "Share Theme" icon to generate a URL with your complete setup encoded as URL parameters!
+
+## Further Learning
+
+<CardGroup cols={2}>
+  <Card title="Keyboard Shortcuts" icon="keyboard" href="/user-guide/keyboard-shortcuts">
+    Master all shortcuts with complete reference
+  </Card>
+  
+  <Card title="XEmacs Guide" icon="code" href="/applications/xemacs">
+    Deep dive into text editing mastery
+  </Card>
+  
+  <Card title="Terminal Lab" icon="terminal" href="/applications/terminal-lab">
+    Complete all 22 interactive Unix lessons
+  </Card>
+  
+  <Card title="Workspaces" icon="grid-2x2" href="/user-guide/workspaces">
+    Advanced workspace organization strategies
+  </Card>
+  
+  <Card title="Style Manager" icon="palette" href="/user-guide/style-manager">
+    Explore all 76 palettes and 168 backdrops
+  </Card>
+  
+  <Card title="File Manager" icon="folder" href="/applications/file-manager">
+    Virtual filesystem navigation guide
+  </Card>
+</CardGroup>
+
+## Contributing Tips
+
+<Info>
+  Have a tip that's not documented? Contribute to the project!
+</Info>
+
+**How to contribute**:
+1. Test your tip thoroughly
+2. Document it clearly
+3. Submit via GitHub pull request
+4. Include source code references if applicable
+5. Add screenshots if helpful
+
+**What makes a good tip**:
+- Saves time or effort
+- Not obvious to average users
+- Reproducible by others
+- Actually useful in real workflows
+- Based on source code features
+
+Happy computing in your CDE time machine!

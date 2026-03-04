@@ -1,0 +1,278 @@
+---
+title: XEmacs
+description: Full-featured text editor with Emacs keybindings
+---
+
+XEmacs is a powerful text editor that brings the classic GNU Emacs experience to the Time Capsule desktop. It features authentic Emacs keybindings, a minibuffer for commands, and full integration with the virtual filesystem.
+
+## Opening XEmacs
+
+You can launch XEmacs in several ways:
+
+- Click the XEmacs icon in the CDE panel
+- Double-click a text file in the File Manager
+- From Terminal Lab: Open a file with `man emacs` for help
+
+### Splash Screen
+
+When you first open XEmacs, you'll see the GNU-style splash screen with the scratch buffer:
+
+```lisp
+;; This buffer is for text that is not saved, and for Lisp evaluation.
+;; To create a file, visit it with C-x C-f and enter text in its buffer.
+```
+
+The splash screen includes:
+- Link to open an existing file
+- Welcome message in the minibuffer
+- Scratch buffer for temporary notes
+
+## Essential Keybindings
+
+### File Operations
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `C-x C-f` | Find File | Open or create a file |
+| `C-x C-s` | Save | Save the current file |
+| `C-x C-w` | Save As | Save with a new name |
+| `C-x C-c` | Quit | Close XEmacs |
+
+### Navigation
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `C-a` | Beginning of Line | Move to start of line |
+| `C-e` | End of Line | Move to end of line |
+| `C-n` | Next Line | Move down one line |
+| `C-p` | Previous Line | Move up one line |
+| `C-f` | Forward Char | Move right one character |
+| `C-b` | Backward Char | Move left one character |
+| `C-l` | Recenter | Recenter cursor in window |
+
+### Editing
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `C-k` | Kill Line | Delete from cursor to end of line |
+| `C-d` | Delete Char | Delete character at cursor |
+| `C-_` | Undo | Undo last change |
+| `C-x h` | Select All | Select entire buffer |
+| `C-s` | Search | Open find dialog |
+| `C-g` | Abort | Cancel current operation |
+
+### Clipboard Operations
+
+While XEmacs traditionally uses "kill" and "yank" terminology, Time Capsule's implementation provides standard clipboard operations:
+
+- **Copy**: Use the Edit menu or `document.execCommand`
+- **Cut**: Use the Edit menu
+- **Paste**: `C-y` or Edit menu (reads from clipboard)
+
+## The Minibuffer
+
+The minibuffer is XEmacs's command-line interface at the bottom of the window. It displays:
+
+- Status messages ("Wrote /home/victxrlarixs/file.txt")
+- Prompts for input ("Visit file: ")
+- Command sequences ("C-x-" when waiting for the next key)
+- Error messages
+
+### Using the Minibuffer
+
+When prompted for input:
+
+1. Type your response (e.g., filename)
+2. Press `Enter` to confirm
+3. Press `Escape` or `C-g` to cancel
+
+## M-x: Execute Command
+
+Press `M-x` (Alt+X) to execute commands by name:
+
+| Command | Action |
+|---------|--------|
+| `save-buffer` | Save current file |
+| `find-file` | Open a file |
+| `kill-emacs` | Quit XEmacs |
+| `help` | Show keybinding help |
+| `eval-buffer` | (Not implemented - shows message) |
+
+Example:
+```
+M-x save-buffer RET
+```
+
+## The Mode Line
+
+The mode line at the bottom shows:
+
+- **File status**: `%%` (unmodified) or `**` (modified)
+- **File name**: Currently open file
+- **Line number**: Current cursor line
+- **Column number**: Current cursor column
+
+Example:
+```
+** index.html  L: 42  C: 15
+```
+
+## Menubar Features
+
+### File Menu
+
+- **New File**: Create a new buffer
+- **Open**: Find and open a file (`C-x C-f`)
+- **Save**: Save current file (`C-x C-s`)
+- **Save As**: Save with new name (`C-x C-w`)
+- **Close**: Quit XEmacs (`C-x C-c`)
+
+### Edit Menu
+
+- **Undo**: Undo last change
+- **Cut**: Cut selected text
+- **Copy**: Copy selected text
+- **Paste**: Paste from clipboard
+- **Select All**: Select entire buffer
+
+### Options Menu
+
+- **Word Wrap**: Toggle visual line mode
+- **Font Size**: Small (12px), Medium (14px), Large (16px)
+- **Clear Buffer**: Erase all content
+
+### Help Menu
+
+- Shows all available keybindings
+- Message: "Bindings: C-x C-s Save  C-x C-c Quit  C-s Search  C-k Kill  C-_ Undo  C-g Abort"
+
+## Find and Replace
+
+Press `C-s` to open the find bar:
+
+1. Type your search term
+2. Press `Enter` or click "Next" to find next occurrence
+3. Click "Previous" to find previous occurrence
+4. Press `Escape` to close the find bar
+
+The minibuffer shows match count: "3/5: search_term"
+
+## Working with Files
+
+### Opening Files
+
+1. Press `C-x C-f`
+2. Enter the file path in the minibuffer:
+   - Absolute path: `/home/victxrlarixs/Desktop/readme.txt`
+   - Relative path: `readme.txt` (opens from ~/Desktop/)
+3. Press `Enter`
+
+If the file doesn't exist, XEmacs will create it:
+```
+(New file) /home/victxrlarixs/Desktop/readme.txt
+```
+
+### Saving Files
+
+When you modify a file, the mode line shows `**` to indicate unsaved changes.
+
+Press `C-x C-s` to save. The minibuffer confirms:
+```
+Wrote /home/victxrlarixs/Desktop/readme.txt
+```
+
+### Save As
+
+1. Press `C-x C-w`
+2. Enter the new path
+3. Press `Enter`
+
+The file will be saved with the new name, and that becomes the current file.
+
+## Integration with File Manager
+
+XEmacs integrates seamlessly with the CDE File Manager:
+
+- Double-clicking a text file opens it in XEmacs
+- The file path is automatically resolved
+- Saving updates the file in the virtual filesystem
+- The File Manager refreshes to show changes
+
+## Keyboard Shortcuts Summary
+
+<Tip>
+All Ctrl keybindings use the standard `C-` notation. Meta key (Alt) is shown as `M-`.
+</Tip>
+
+**Most Used**:
+- `C-x C-s`: Save file
+- `C-x C-f`: Open file
+- `C-x C-c`: Quit
+- `C-k`: Kill line
+- `C-s`: Search
+- `C-g`: Cancel/Abort
+- `C-_`: Undo
+
+**Navigation**:
+- `C-a`, `C-e`: Start/end of line
+- `C-n`, `C-p`: Next/previous line
+- `C-f`, `C-b`: Forward/backward character
+
+**Help**:
+- `M-x help`: Show keybindings
+- From Help menu: Display all shortcuts
+
+## Tips and Tricks
+
+<AccordionGroup>
+  <Accordion title="Two-key Commands">
+    Some commands require two key sequences. Press `C-x`, then the second key:
+    
+    - `C-x C-s`: Save
+    - `C-x C-f`: Find file
+    - `C-x C-c`: Quit
+    - `C-x C-w`: Save as
+    - `C-x h`: Select all
+    
+    The minibuffer shows "C-x-" while waiting for the second key.
+  </Accordion>
+
+  <Accordion title="Aborting Commands">
+    Made a mistake? Press `C-g` to cancel:
+    
+    - Exits partial command sequences
+    - Cancels minibuffer prompts
+    - Closes dialogs
+    
+    The minibuffer displays "Quit" to confirm.
+  </Accordion>
+
+  <Accordion title="Visual Line Mode">
+    Toggle word wrap for easier reading:
+    
+    1. Open Options menu
+    2. Click "Word Wrap"
+    3. Or use `Options` → `Word Wrap`
+    
+    Status message: "Visual Line mode: enabled"
+  </Accordion>
+
+  <Accordion title="Scratch Buffer vs. Files">
+    The scratch buffer is temporary:
+    
+    - Not saved automatically
+    - Perfect for quick notes
+    - To save it, use `C-x C-w` (Save As)
+    
+    Open actual files with `C-x C-f` for persistent storage.
+  </Accordion>
+</AccordionGroup>
+
+## Source Code
+
+XEmacs is implemented in:
+- `/src/scripts/features/emacs.ts`: Core editor logic (822 lines)
+- Minibuffer prompt system with Enter/Escape handlers
+- Mode line showing file status, cursor position
+- Full Emacs keybinding emulation
+- Integration with VFS for file operations
